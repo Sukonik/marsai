@@ -17,6 +17,9 @@
 <link rel="stylesheet" href="assets/hud.css">
 <script src="assets/voice.js" defer></script>
 <script src="assets/brain.js" defer></script>
+<script src="assets/vendor/wywo-quicktype.js" defer></script>
+<script src="assets/webdata.js" defer></script>
+<script src="assets/dialog.js" defer></script>
 <script src="assets/copilot.js" defer></script>
 <script src="assets/app.js" defer></script>
 </head>
@@ -43,7 +46,6 @@
 
   <main id="main">
     <section id="panel-home" role="tabpanel" aria-labelledby="tab-home" class="hero cut">
-      <div class="era" aria-hidden="true"><span>1996</span><i></i><span>2026</span><i></i><b>2056</b></div>
       <img src="assets/marsai-emblem-color.svg" alt="MARSAI emblem" width="200" height="200">
       <h1>MARS AI</h1>
       <div class="tag">ONE GALAXY. INFINITE STORIES.</div>
@@ -52,7 +54,7 @@
         <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><path d="M12 3v9" /><path d="M6.4 6.6a8 8 0 1 0 11.2 0" /></svg>
         <span>POWER ON</span>
       </button>
-      <p class="hint">Opens the bridge HUD. Full screen is available once powered on.</p>
+      <p class="hint">Powers on your crew, voice, and web data. A small on-device AI (about 400 MB, once) loads in the background. Everything can be switched off in Subsystems.</p>
     </section>
 
     <section id="panel-crew" role="tabpanel" aria-labelledby="tab-crew" hidden>
@@ -76,43 +78,38 @@
 
   <footer>
     <a href="https://github.com/Sukonik/marsai">GitHub</a> ·
-    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.5.0
+    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.6.0
   </footer>
 </div>
 
 <div id="hud" role="dialog" aria-modal="true" aria-labelledby="hud-title" hidden>
-  <div class="fx" aria-hidden="true"></div>
   <div id="boot" class="boot mono" aria-hidden="true">
-    <p>MARSAI // CHRONOFRAME 2056</p>
-    <p>SHIPCORE LINK ........ <b id="boot-link">STANDBY</b></p>
+    <p>MARS AI // SYSTEMS CHECK</p>
     <p>CREW ROSTER ......... <b id="boot-crew">--/--</b></p>
     <p>VOICE ............... <b id="boot-voice">--</b></p>
+    <p>SHIPCORE ............ <b id="boot-link">STANDBY</b></p>
     <p>BRIDGE .............. ONLINE</p>
   </div>
 
   <header class="top">
-    <button type="button" class="ibtn only-small" id="drawer-toggle" aria-expanded="false" aria-controls="wing" aria-label="Open crew panel">CREW</button>
+    <button type="button" class="key only-small" id="drawer-toggle" aria-expanded="false" aria-controls="wing" aria-label="Open crew and systems panel">CREW</button>
     <div class="brand">
       <img src="assets/marsai-emblem-color.svg" alt="" width="30" height="30">
       <h2 id="hud-title" tabindex="-1">MARS AI</h2>
     </div>
     <nav class="hextabs" aria-label="Modules"><ul id="navlist"></ul></nav>
-    <div class="clock mono" title="In-world date and your local session time">
-      <span class="sd">2056.<b id="stardate">000</b></span>
-      <span class="sess">SESSION <time id="chrono">00:00:00</time></span>
-    </div>
+    <div class="clock mono" title="Local date and time"><span id="clock-date">--</span><b id="clock-time">--:--</b></div>
     <div class="ctl">
-      <span class="tag"><span class="dot" aria-hidden="true"></span><span id="link-text">ONBOARD CORE</span></span>
-      <button type="button" class="ibtn" id="fs-toggle" aria-pressed="false">FULL</button>
-      <button type="button" class="ibtn" id="settings-btn" aria-haspopup="dialog" aria-label="Open systems and settings">SYSTEMS</button>
-      <button type="button" class="ibtn off" id="power-off" aria-label="Power off the HUD and return home">
+      <button type="button" class="key" id="fs-toggle" aria-pressed="false">FULL</button>
+      <button type="button" class="key" id="settings-btn" aria-haspopup="dialog" aria-label="Open settings">SETTINGS</button>
+      <button type="button" class="key off" id="power-off" aria-label="Power off the HUD and return home">
         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M12 3v9" /><path d="M6.4 6.6a8 8 0 1 0 11.2 0" /></svg>
         <span>OFF</span>
       </button>
     </div>
   </header>
 
-  <aside class="wing" id="wing" aria-label="Active crew and systems">
+  <aside class="wing" id="wing" aria-label="Active crew and subsystems">
     <section class="crewcard cut" aria-labelledby="crew-name">
       <p class="mono small k">ACTIVE CREW</p>
       <div class="sigil" id="crew-sigil" aria-hidden="true">🔴</div>
@@ -123,28 +120,31 @@
     </section>
     <section class="sysbox cut" aria-labelledby="h-nodes">
       <h3 id="h-nodes" class="mono small k">SUBSYSTEMS</h3>
-      <ul class="nodes mono small">
-        <li><span>Core</span><b id="node-core">ONLINE</b></li>
-        <li><span>Voice</span><b id="node-voice">UNAVAILABLE</b></li>
-        <li><span>ShipCore</span><b id="node-net">OFFLINE</b></li>
+      <ul class="subs">
+        <li><button type="button" class="sw" role="switch" aria-checked="true" id="sw-voice" data-sw="voice"><i class="led" aria-hidden="true"></i><span class="nm">Voice replies</span><small id="st-voice">ON</small><i class="knob" aria-hidden="true"></i></button></li>
+        <li><button type="button" class="sw" role="switch" aria-checked="true" id="sw-mic" data-sw="mic"><i class="led" aria-hidden="true"></i><span class="nm">Microphone</span><small id="st-mic">READY</small><i class="knob" aria-hidden="true"></i></button></li>
+        <li><button type="button" class="sw" role="switch" aria-checked="true" id="sw-web" data-sw="web"><i class="led" aria-hidden="true"></i><span class="nm">Web data</span><small id="st-web">ON</small><i class="knob" aria-hidden="true"></i></button></li>
+        <li><button type="button" class="sw" role="switch" aria-checked="true" id="sw-brain" data-sw="brain"><i class="led" aria-hidden="true"></i><span class="nm">AI brain</span><small id="st-brain">ON</small><i class="knob" aria-hidden="true"></i></button></li>
+        <li><button type="button" class="sw" role="switch" aria-checked="true" id="sw-core" data-sw="core"><i class="led" aria-hidden="true"></i><span class="nm">ShipCore</span><small id="st-core">SEARCHING</small><i class="knob" aria-hidden="true"></i></button></li>
+        <li><button type="button" class="sw" role="switch" aria-checked="true" id="sw-sfx" data-sw="sfx"><i class="led" aria-hidden="true"></i><span class="nm">Sound cues</span><small id="st-sfx">ON</small><i class="knob" aria-hidden="true"></i></button></li>
       </ul>
-      <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="sliders">
+        <label class="slider"><span class="kl">VOLUME</span><input class="neon" id="sl-vol" type="range" min="0" max="100" step="1" value="80" aria-label="Volume"><output class="kv" id="kv-vol" for="sl-vol">80</output></label>
+        <label class="slider"><span class="kl">VOICE SPEED</span><input class="neon" id="sl-speed" type="range" min="70" max="130" step="5" value="100" aria-label="Voice speed"><output class="kv" id="kv-speed" for="sl-speed">1.00x</output></label>
+      </div>
+      <div class="wave" id="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <span id="node-core" hidden></span><span id="node-voice" hidden></span><span id="node-net" hidden></span>
     </section>
   </aside>
 
   <main class="center" id="matrix" aria-labelledby="module-title">
-    <svg class="rings" viewBox="0 0 400 400" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice">
-      <circle cx="200" cy="200" r="190" class="r1"/><circle cx="200" cy="200" r="140" class="r2"/><circle cx="200" cy="200" r="90" class="r3"/>
-      <path d="M200 0V400M0 200H400" class="cross"/>
-    </svg>
     <section class="module cut" aria-label="Module">
-      <div class="stripe" aria-hidden="true"></div>
       <div class="mhead">
         <span class="tag hot" id="module-kicker">MODULE 01</span>
         <h3 id="module-title" class="mtitle">BRIDGE</h3>
-        <span class="trace mono small" id="trace" aria-label="Current route"></span>
+        <span class="tag" id="link-pill"><span class="dot" aria-hidden="true"></span><span id="link-text">ONBOARD CORE</span></span>
       </div>
-      <span id="module-name" hidden>BRIDGE</span>
+      <span id="module-name" hidden>BRIDGE</span><span id="trace" hidden></span>
       <p id="module-desc" class="mdesc"></p>
       <div id="module-extra" class="module-extra"></div>
     </section>
@@ -158,48 +158,48 @@
   </aside>
 
   <footer class="foot">
+    <p id="voice-status" class="voicestate mono small" role="status" aria-live="polite"><span class="vpill" id="vpill" data-state="idle">IDLE</span><span id="voice-hint">Hold the mic (or Space) to talk. Release to send.</span></p>
     <form id="console-form" autocomplete="off">
       <label for="cmd" class="sr">Message your crew</label>
       <div class="row cut">
-        <input id="cmd" class="mono" type="text" placeholder="Talk to your crew, e.g. take me to the crew" enterkeyhint="send" autocapitalize="off" spellcheck="false">
-        <button type="button" class="ibtn mic" id="mic" aria-pressed="false" hidden title="Talk to the ship. Uses local ShipCore Whisper when running, otherwise your browser speech service.">MIC</button>
-        <button type="submit" class="ibtn go">SEND</button>
+        <button type="button" class="ptt" id="mic" aria-pressed="false" hidden title="Hold to talk, release to send. Tap once to talk until you pause."><span class="ring" aria-hidden="true"></span><span class="ico" aria-hidden="true">&#127897;</span><span class="lbl" id="mic-label">HOLD TO TALK</span></button>
+        <input id="cmd" class="mono" type="text" placeholder="Or type here: take me to the crew, weather in Paris, news..." enterkeyhint="send" autocapitalize="off" spellcheck="false">
+        <button type="submit" class="key go">SEND</button>
       </div>
     </form>
-    <p id="voice-status" class="mono small" role="status" aria-live="polite"></p>
   </footer>
 
   <dialog id="settings" aria-labelledby="settings-title">
     <div class="sheet cut">
       <header class="shead">
-        <h3 id="settings-title">SYSTEMS</h3>
-        <button type="button" class="ibtn" id="settings-close" aria-label="Close systems">CLOSE</button>
+        <h3 id="settings-title">SETTINGS</h3>
+        <button type="button" class="key" id="settings-close" aria-label="Close settings">CLOSE</button>
       </header>
-      <section aria-labelledby="s-conv">
-        <h4 id="s-conv" class="mono small k">CONVERSATION</h4>
-        <div class="srow"><button type="button" class="hbtn" id="brain-btn" aria-pressed="false" title="Open conversation with a small AI model that runs in this browser (downloads about 400 MB once)">AI BRAIN: OFF</button>
-          <span class="mono small">A small open AI that runs in your browser. No key.</span></div>
-        <div class="srow"><button type="button" class="hbtn" id="web-btn" aria-pressed="true" title="Weather and Wikipedia lookups (no key). Every request is logged.">WEB LOOKUPS: ON</button>
-          <span class="mono small">Weather and Wikipedia. Requests are logged below.</span></div>
-        <div class="srow"><button type="button" class="hbtn" id="connect-btn">CONNECT SHIPCORE</button>
-          <span class="mono small">Local engine for voice and open conversation. <b id="link-text2">ONBOARD CORE</b></span></div>
+      <section aria-labelledby="s-theme">
+        <h4 id="s-theme" class="mono small k">THEME</h4>
+        <div class="themes" id="themes-quick" role="group" aria-label="Themes"></div>
       </section>
       <section id="voice-settings" aria-labelledby="s-voice" hidden>
         <h4 id="s-voice" class="mono small k">VOICE <span id="voice-state" class="mono">UNAVAILABLE</span></h4>
-        <div class="srow"><button type="button" class="hbtn" id="speak-toggle" aria-pressed="false" hidden>SPEAK REPLIES: OFF</button></div>
         <p class="mono small" id="voice-engine"></p>
         <p class="mono small" id="voice-crew"></p>
         <div class="vset">
           <label class="mono small">Voice <select id="voice-select"></select></label>
-          <label class="mono small">Speed <input id="voice-rate" type="range" min="0.7" max="1.3" step="0.05" value="1"></label>
-          <button type="button" class="hbtn" id="voice-test">TEST VOICE</button>
+          <label class="mono small">Speed <input class="neon" id="voice-rate" type="range" min="0.7" max="1.3" step="0.05" value="1"></label>
+          <button type="button" class="key" id="voice-test">TEST VOICE</button>
         </div>
         <div class="phrases" id="phrases" aria-label="Recorded phrases"></div>
       </section>
       <section aria-labelledby="s-disp">
-        <h4 id="s-disp" class="mono small k">DISPLAY</h4>
-        <div class="srow"><button type="button" class="hbtn" id="glow-toggle" aria-pressed="true">GLOW: ON</button>
-          <button type="button" class="hbtn" id="clear">CLEAR CONVERSATION</button></div>
+        <h4 id="s-disp" class="mono small k">DISPLAY AND CONVERSATION</h4>
+        <div class="srow"><span class="mono small">BUTTON FINISH</span>
+          <span class="finishes" id="finishes" role="group" aria-label="Button finish">
+            <button type="button" class="key" data-material="carbon" aria-pressed="true">CARBON</button>
+            <button type="button" class="key" data-material="titanium" aria-pressed="false">TITANIUM</button>
+            <button type="button" class="key" data-material="matte" aria-pressed="false">MATTE</button>
+          </span></div>
+        <div class="srow"><button type="button" class="key" id="glow-toggle" aria-pressed="true">GLOW: ON</button>
+          <button type="button" class="key" id="clear">CLEAR CONVERSATION</button></div>
       </section>
       <section aria-labelledby="s-log">
         <h4 id="s-log" class="mono small k">SYSTEM LOG</h4>
@@ -207,6 +207,8 @@
       </section>
     </div>
   </dialog>
+  <span id="link-text2" hidden></span>
+  <button type="button" id="brain-btn" hidden></button><button type="button" id="web-btn" hidden></button><button type="button" id="speak-toggle" hidden></button><button type="button" id="connect-btn" hidden></button>
 </div>
 
 <div id="sr" class="sr" role="status" aria-live="polite"></div>

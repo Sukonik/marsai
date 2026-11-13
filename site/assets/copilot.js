@@ -139,6 +139,19 @@
     if (/\b(?:enable|turn on|allow|start)\s+(?:the\s+)?(?:web|internet|online|lookups?)\b|\bweb on\b/.test(n)) return { intent: 'web', on: true };
     if (/\b(?:connect|link|reconnect)\s+(?:to\s+)?(?:the\s+)?(?:shipcore|ship core|local engine|server)\b|^connect$/.test(n)) return { intent: 'connect' };
     if (/\b(?:open|show|bring up|go to|take me to|let me see)\s+(?:the\s+)?(?:settings|systems|options|preferences|controls)\b|^(?:settings|options|preferences)$/.test(n)) return { intent: 'settings' };
+    var themes = ctx.themes || [], themeCue = /\b(?:theme|themes|colou?rs?|palette|look|skin|scheme)\b/.test(n);
+    if (themes.length) {
+      if (/\b(?:previous|last|back to the previous)\s+(?:theme|colou?r|look|palette)\b/.test(n)) return { intent: 'theme', prev: true };
+      if (/\b(?:random|surprise me with(?: a)?)\s+(?:theme|colou?r|look|palette)\b/.test(n)) return { intent: 'theme', random: true };
+      if (/\b(?:next|another|different|new|other)\s+(?:theme|colou?r|look|palette)\b|\bchange (?:the )?(?:theme|colou?rs?)$|\bswitch (?:the )?theme$/.test(n)) return { intent: 'theme', next: true };
+      if (/\b(?:what|which|list)\b.*\b(?:themes?|palettes?)\b|\bhow many themes\b/.test(n)) return { intent: 'list_themes' };
+      var tm = null;
+      themes.forEach(function (th) { var nm = th.name.toLowerCase(); if (n.indexOf(nm) > -1) tm = th; });
+      if (!tm && themeCue) themes.forEach(function (th) { var first = th.name.toLowerCase().split(' ')[0]; if (!tm && (ws.indexOf(th.id) > -1 || ws.indexOf(first) > -1)) tm = th; });
+      if (tm && (/\b(?:change|switch|set|use|apply|make|try|go|put|turn)\b/.test(n) || ws.length <= 3 || themeCue)) return { intent: 'theme', id: tm.id };
+    }
+    m = n.match(/\b(?:open|launch|go to|take me to|show me|visit|pull up)\s+(?:the\s+)?(clearsky|clear sky|weather app|weather site|payout lab|payoutlab|dividend app|dividend site|stocks? app|goldbrief|gold brief|ai news site|news site|wywo|while you were out|message app|notes app)\b/);
+    if (m) { var k = m[1]; return { intent: 'open_app', app: /clear|weather/.test(k) ? 'clearsky' : /payout|dividend|stock/.test(k) ? 'payout' : /gold|news/.test(k) ? 'goldbrief' : 'wywo' }; }
     if (/^(?:power|shut|turn)\s+(?:it\s+)?(?:down|off)$|^(?:shutdown|powerdown|close (?:the )?(?:hud|screen)|go to sleep|that is all|i am done(?: for now| for today)?|end (?:the )?session|exit)$/.test(n)) return { intent: 'power_off' };
     if (/^(?:help(?: me)?|what can you do|what can i (?:say|ask|do)|how does this work|how do i use this|commands?|what are (?:the|your) commands|show (?:me )?(?:the )?commands|what are you able to do)$/.test(n) || /\bwhat can you do\b/.test(n)) return { intent: 'help' };
 
@@ -158,6 +171,11 @@
     m = n.match(/^(?:remind me to|add (?:a )?(?:new )?(?:mission|goal|task|to do|todo|reminder)(?: to| for| called| named)?|new (?:mission|goal|task)|create (?:a )?(?:new )?(?:mission|goal|task)|make (?:it |that )?a (?:mission|goal)|log (?:a )?(?:mission|goal)|set (?:a )?goal(?: to)?|my goal is(?: to)?|put .{0,25}on my list)\s*[:,-]?\s*(.*)$/);
     if (m) { var t0 = raw.replace(/^[^]*?(?:remind me to|mission|goal|task|reminder|to do|todo|goal is(?: to)?|goal to|list)\s*[:,-]?\s*/i, '').trim() || m[1]; return { intent: 'mission_add', title: t0.replace(/^to\s+/i, '') }; }
     if (/\b(?:what is (?:on )?my (?:plate|list|agenda)|what (?:do i|have i got|should i) (?:have |need |got )?to do|what is (?:left|pending|open|next)|my (?:missions|goals|tasks|todos|objectives)|(?:show|list|read|tell)(?: me)?(?: my| all| the)? (?:missions|goals|tasks|todos)|open missions|what missions)\b/.test(n.replace(/to-do/g, 'todo'))) return { intent: 'mission_list' };
+    if (/\b(?:take (?:a |this )?(?:phone )?message|log (?:a )?(?:phone )?call|while you were out|wywo|new call note|phone message)\b/.test(n) || /^(?:message|call|note) (?:for|from) [A-Za-z]/i.test(raw) || (/\b(?:called|phoned)\b/.test(n) && /\d{3}[\s.-]?\d{3}[\s.-]?\d{4}/.test(raw))) {
+      var body = raw.replace(/^[\s\S]*?(?:take (?:a |this )?(?:phone )?message|log (?:a )?(?:phone )?call|while you were out|new call note|phone message)\s*[:,-]?\s*/i, '');
+      return { intent: 'message_add', text: body === raw && !/^(?:message|call|note) (?:for|from)|called|phoned/i.test(raw) ? '' : body.trim() };
+    }
+    if (/\b(?:my messages|call notes|(?:show|read|list)(?: me)?(?: my| the| all)? (?:phone )?messages|who called|list (?:my )?(?:messages|calls)|any messages|any calls)\b/.test(n)) return { intent: 'message_list' };
     m = raw.match(/^(?:please\s+)?(?:write (?:this |that |it )?down|jot (?:this |that |it )?down|(?:make|take) a note|note (?:this|that|to self)|note to self|remember (?:that|this)|don'?t let me forget|keep in mind|save this)\s*[:,-]?\s*(.*)$/i);
     if (m) return { intent: 'note_add', text: m[1].trim() };
     if (/\b(?:what did i (?:note|write|jot|save)|(?:show|read|list|tell)(?: me)?(?: back)?(?: my| the)? notes|my notes|what (?:do you|have you) (?:remember|noted|saved)|read (?:it|them) back)\b/.test(n)) return { intent: 'note_list' };
@@ -191,7 +209,17 @@
       var city = cm ? cm[1].replace(/\b(?:the|my)\b\s*$/, '').trim() : null;
       if (city && /^(?:here|outside|my area|my location|me|this area)$/.test(city)) return { intent: 'weather', here: true };
       if (/\b(?:here|near me|my location|where i am)\b/.test(n)) return { intent: 'weather', here: true };
-      return { intent: 'weather', city: city ? cap(city) : null };
+      return { intent: 'weather', city: city ? cap(city) : null, ask: /\bumbrella\b/.test(n) ? 'umbrella' : null };
+    }
+    var fin = /\b(?:stock|stocks|shares?|ticker|dividends?|yield|etfs?|payout|equity)\b/.test(n), tick = (raw.match(/\b[A-Z]{2,5}(?:\.[A-Z])?\b/g) || []).filter(function (x) { return !/^(?:AI|US|UK|PM|AM|OK|TV|ID|HUD|CPU|GPU|USA|ETF|THE|AND|FOR|NOT|YES|WHAT|WHO|HOW)$/.test(x); });
+    if (fin || (tick.length && /\b(?:price of|quote for|price|what does .{1,12} pay|how (?:is|are) .{1,12} doing|pays?)\b/.test(n))) {
+      var sq = tick[0] || null;
+      if (!sq) { var sm = n.match(/\b(?:price of|quote for|stock (?:price )?(?:of|for)|dividend(?: yield)? (?:of|for|on)|yield (?:of|for|on)|about|on|for)\s+(.+?)(?:\s+(?:stock|shares?|pay|doing|dividend|yield|etf))?$/) || n.match(/^how (?:is|are) (.+?) (?:stock|shares?|doing)/) || n.match(/^(.+?)\s+(?:stock|shares?|dividend|yield|etf)\b/); sq = sm ? sm[1].replace(/^(?:the|a|an|my)\s+/, '').trim() : null; }
+      return { intent: 'stock', query: sq && !/^(?:stocks?|shares?|dividends?|yield|etfs?|market)$/.test(sq) ? sq : null };
+    }
+    if (/\b(?:(?:any|the|latest|today's|todays|recent|top)\s+(?:ai\s+)?news|ai news|headlines?|news (?:about|on|for)|what is (?:the )?news|tell me the news|catch me up on)\b/.test(n)) {
+      var nm2 = n.match(/\bnews (?:about|on|for)\s+(.+)$/) || n.match(/\bheadlines? (?:about|on|for)\s+(.+)$/);
+      return { intent: 'news', topic: nm2 ? nm2[1].trim() : '' };
     }
     if (/\b(?:what(?:'s| is)? (?:the )?time|what time|time is it|current time|got the time|tell me the time)\b/.test(n) || /^time$/.test(n)) return { intent: 'time' };
     if (/\b(?:what is (?:the )?date|today's date|what day|which day|day is it|what is today|what is the day)\b/.test(n) || /^(?:date|today)$/.test(n)) return { intent: 'date' };
@@ -211,6 +239,7 @@
       if (q && !/^(?:you|your|my|me|up|going on|the (?:time|date|day|weather)|this|that|it|here|new|there)\b/.test(q) && !/\b(?:poem|story|song|haiku|essay|limerick|write|joke|riddle|rap|speech)\b/.test(q)) {
         var qc = crewByName(ctx, q.toLowerCase(), false);
         if (qc) return { intent: 'about_crew', crew: qc.id };
+        if (ctx.glossary && ctx.glossary.indexOf(q.toLowerCase()) > -1) return { intent: 'glossary', term: q };
         return { intent: 'fact', query: q };
       }
     }
