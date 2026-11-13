@@ -6,6 +6,10 @@
 - Technical subtag: **ORBITAL COMPANION OS // SYS-04**
 - Primary emblem: shield enclosing a ringed Mars sphere
 - Default site theme: **Ares Prime**
+- Approved display wordmark: **MARS AI**
+- Product name in prose and metadata: **MARSAI**
+- Primary display family: **Orbitron**
+- Large HUD panel family: **Quantico**
 
 The emblem and wordmark are supplied separately so Cole can use the shield as an application icon, crew-console mark, favicon source, or compact navigation badge without forcing the full wordmark into small spaces.
 
@@ -35,11 +39,20 @@ Use files in `logo/` for:
 
 The full-color emblem is the primary version. Use silver on dark monochrome applications and dark navy on light backgrounds.
 
-### Wordmark only
+### Wordmark status
 
-Use files in `wordmark/` when the emblem already appears nearby or when horizontal space is limited. The custom wordmark is path-based and does not require an installed display font.
+The existing rounded path wordmarks and combined lockups under `public/brand/` are **deprecated and must not be used as the final MARSAI wordmark**.
 
-The technical subtag is optional and should not appear below approximately 480 pixels of available width.
+The replacement wordmark will use a large Orbitron treatment displaying **MARS AI**, with final tracking and spacing converted to outlines after approval.
+
+Until the replacement assets are delivered:
+
+- Keep using the approved shield-and-orbit emblem.
+- Pair the emblem with live Orbitron text when a wordmark is required.
+- Do not rasterize the temporary live-text treatment.
+- Do not use the deprecated lockups in new screenshots, social cards, or site sections.
+
+The technical subtag remains optional and should not appear below approximately 480 pixels of available width.
 
 ### Combined lockups
 
@@ -76,19 +89,19 @@ Below those sizes, remove the subtag first. At favicon sizes, use the simplified
 
 - Stretch or skew the emblem
 - Recolor individual elements outside an approved theme treatment
-- Replace the custom wordmark with an ordinary typeface
+- Replace the approved Orbitron-based wordmark with another typeface
 - Put the wordmark inside the shield
 - Add gradients, textures, chrome, or bevels
 - Rotate the shield or change the orbit angle
 - Use the technical subtag as the primary product name
-- Display the old spaced form `MARS AI` as the primary brand
+- Display the wordmark as `MARSAI` without its approved visual separation
 
 ## Website integration
 
 Recommended header behavior:
 
-- Desktop: horizontal lockup
-- Tablet: emblem plus wordmark, no subtag
+- Desktop: emblem plus live Orbitron **MARS AI** until the replacement horizontal lockup is delivered
+- Tablet: emblem plus live Orbitron **MARS AI**, no subtag
 - Mobile: emblem only with accessible `MARSAI` text label
 - Browser tab: emblem-derived favicon
 - Loading screen: stacked lockup
@@ -97,4 +110,6 @@ Every image element should have useful alternative text. Decorative repetitions 
 
 ## Source of truth
 
-The SVG files are the editable source assets. PNG files are convenience exports for platforms that cannot consume SVG. Always regenerate raster sizes from the SVG rather than resizing an already-small PNG.
+The emblem SVG files remain the approved editable source assets. The current wordmark and combined-lockup SVGs are deprecated. See [TYPOGRAPHY.md](TYPOGRAPHY.md) for the active type system.
+
+When the replacement wordmark is approved, its SVG files will become the new source of truth. PNG files are convenience exports for platforms that cannot consume SVG. Always regenerate raster sizes from SVG rather than resizing an already-small PNG.

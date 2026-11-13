@@ -9,28 +9,34 @@
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/marsai-mark-32.png">
 <link rel="apple-touch-icon" href="assets/marsai-mark-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Quantico:wght@400;700&display=swap" rel="stylesheet">
 <meta property="og:title" content="MARSAI">
 <meta property="og:description" content="One galaxy. Infinite stories.">
 <meta property="og:image" content="assets/marsai-mark-512.png">
 <style>
-:root{--bg:#14100f;--panel:#1d1816;--line:#3a2e2a;--text:#e9e1dc;--muted:#a79a93;--accent:#dc5336;--gold:#d6963c}
+:root{--bg:#14100f;--panel:#1d1816;--line:#3a2e2a;--text:#e9e1dc;--muted:#a79a93;--accent:#dc5336;--gold:#d6963c;--font-display:"Orbitron",system-ui,sans-serif;--font-panel:"Quantico",system-ui,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;display:flex;flex-direction:column}
 a{color:var(--gold)}
 a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .strip{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-bottom:1px solid var(--line)}
-.strip .lockup{height:40px;width:auto}
-.strip span{margin-left:auto;color:var(--muted);font-size:.75rem;letter-spacing:.12em}
+.brand{display:flex;align-items:center;gap:.65rem;color:var(--text);text-decoration:none}
+.brand-mark{height:38px;width:38px}
+.brand-wordmark{font-family:var(--font-display);font-size:1.15rem;font-weight:800;letter-spacing:.18em;white-space:nowrap}
+.strip .status{margin-left:auto;color:var(--muted);font-family:var(--font-display);font-size:.75rem;font-weight:600;letter-spacing:.12em}
 main{flex:1;display:grid;gap:1rem;padding:1rem;max-width:1100px;width:100%;margin:0 auto;grid-template-columns:1fr}
 .hero{text-align:center;padding:2.5rem 1rem;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
 .hero img{width:min(220px,50vw);height:auto}
-h1{margin:.5rem 0 0;letter-spacing:.25em;font-size:clamp(1.8rem,6vw,3rem)}
-.tag{color:var(--gold);letter-spacing:.2em;font-size:.85rem}
+h1{margin:.5rem 0 0;font-family:var(--font-display);font-weight:900;letter-spacing:.18em;font-size:clamp(1.8rem,6vw,3.4rem)}
+.tag{color:var(--gold);font-family:var(--font-display);font-weight:700;letter-spacing:.16em;font-size:.85rem}
 .hero p{max-width:60ch;margin:1rem auto 0;color:var(--muted)}
+.hero .system-prompt{font-family:var(--font-panel);font-size:clamp(1.1rem,2.4vw,1.35rem);font-weight:700;letter-spacing:.04em;color:var(--text)}
 .modules{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 .mod{border:1px solid var(--line);border-radius:10px;padding:1rem;background:var(--panel)}
-.mod h2{margin:0 0 .25rem;font-size:.9rem;letter-spacing:.15em;color:var(--accent)}
+.mod h2{margin:0 0 .35rem;font-family:var(--font-panel);font-size:1.15rem;font-weight:700;letter-spacing:.08em;color:var(--accent)}
 .mod p{margin:0;color:var(--muted);font-size:.9rem}
 footer{padding:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;text-align:center}
 @media (prefers-reduced-motion:no-preference){.hero img{transition:transform .4s}.hero img:hover{transform:rotate(-4deg) scale(1.03)}}
@@ -38,16 +44,19 @@ footer{padding:1rem;border-top:1px solid var(--line);color:var(--muted);font-siz
 </head>
 <body>
 <header class="strip">
-  <img class="lockup" src="assets/marsai-lockup-horizontal.svg" alt="MARSAI">
-  <span>ORBITAL COMPANION OS</span>
+  <a class="brand" href="./" aria-label="MARSAI home">
+    <img class="brand-mark" src="assets/marsai-emblem-color.svg" alt="" width="38" height="38">
+    <span class="brand-wordmark">MARS AI</span>
+  </a>
+  <span class="status">ORBITAL COMPANION OS</span>
 </header>
 <main>
   <section class="hero">
     <img src="assets/marsai-emblem-color.svg" alt="MARSAI emblem" width="220" height="220">
-    <h1>MARSAI</h1>
+    <h1>MARS AI</h1>
     <div class="tag">ONE GALAXY. INFINITE STORIES.</div>
     <p>A browser-first personal AI companion presented as an original starship and life-progression RPG. Your life. Your ship. Your universe.</p>
-    <p>Bridge shell online. Full orbital HUD in development.</p>
+    <p class="system-prompt">BRIDGE SHELL ONLINE // FULL ORBITAL HUD IN DEVELOPMENT</p>
   </section>
   <nav class="modules" aria-label="Modules">
     <div class="mod"><h2>BRIDGE</h2><p>Command overview. Coming soon.</p></div>
@@ -58,7 +67,7 @@ footer{padding:1rem;border-top:1px solid var(--line);color:var(--muted);font-siz
 </main>
 <footer>
   <a href="https://github.com/Sukonik/marsai">GitHub</a> ·
-  <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.1.3
+  <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.1.4
 </footer>
 </body>
 </html>
