@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 240" role="img" aria-labelledby="title desc">
+  <title id="title">MARSAI wordmark in HUD silver</title>
+  <desc id="desc">A custom geometric all-capital MARSAI wordmark.</desc>
+  <g fill="none" stroke="#DCE7F0" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M54 194V46l68 94 68-94v148"/>
+    <path d="M250 194 315 46l65 148M274 144h82"/>
+    <path d="M442 194V46h78c41 0 61 20 61 49s-20 49-61 49h-78M515 144l74 50"/>
+    <path d="M758 53c-17-8-38-12-62-12-43 0-68 18-68 47 0 28 22 39 67 47 41 7 61 17 61 45 0 34-29 53-75 53-26 0-50-5-70-16"/>
+    <path d="M810 194 875 46l65 148M834 144h82"/>
+    <path d="M1025 46v148M982 46h86M982 194h86"/>
+  </g>
+</svg>
