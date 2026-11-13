@@ -6,11 +6,13 @@ import re
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from starlette.concurrency import run_in_threadpool
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from . import __version__
 from .core import ShipCore
+from .voice import MAX_AUDIO_BYTES, VoiceEngine
 
 DEFAULT_ORIGINS = {"https://sukonik.github.io"}
 LOCAL_ORIGIN = re.compile(r"^https?://(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$")
@@ -32,12 +34,18 @@ class ChatIn(BaseModel):
     crew: str = Field(default="MARS", max_length=16)
 
 
+class TtsIn(BaseModel):
+    text: str = Field(min_length=1, max_length=600)
+    crew: str = Field(default="MARS", max_length=16)
+
+
 class MissionIn(BaseModel):
     title: str = Field(min_length=1, max_length=500)
 
 
-def create_app(core: ShipCore | None = None) -> FastAPI:
+def create_app(core: ShipCore | None = None, voice: VoiceEngine | None = None) -> FastAPI:
     core = core or ShipCore()
+    voice = voice or VoiceEngine(core.store.home)
     app = FastAPI(title="MARSAI ShipCore", version=__version__, docs_url=None, redoc_url=None)
 
     app.add_middleware(
@@ -64,6 +72,40 @@ def create_app(core: ShipCore | None = None) -> FastAPI:
     def chat(body: ChatIn):
         r = core.chat(body.message, body.crew)
         return {"reply": r.text, "source": r.source, "speaker": body.crew.upper() if body.crew.upper() in ("MARS", "VENUS") else "MARS"}
+
+    @app.get("/voice/status")
+    def voice_status():
+        return voice.status()
+
+    @app.post("/stt")
+    async def stt(request: Request):
+        if not voice.stt_available():
+            raise HTTPException(503, "speech-to-text not installed")
+        declared = int(request.headers.get("content-length") or 0)
+        if declared > MAX_AUDIO_BYTES:
+            raise HTTPException(413, "audio too large")
+        data = await request.body()
+        if not data or len(data) > MAX_AUDIO_BYTES:
+            raise HTTPException(413 if data else 400, "audio missing or too large")
+        try:
+            text = await run_in_threadpool(voice.transcribe, data)
+        except ValueError as e:
+            raise HTTPException(400, str(e))
+        except Exception:
+            raise HTTPException(422, "could not decode audio")
+        return {"text": text}
+
+    @app.post("/tts")
+    def tts(body: TtsIn):
+        if not voice.tts_available():
+            raise HTTPException(503, "text-to-speech voice not installed")
+        try:
+            wav = voice.synthesize(body.text, body.crew)
+        except ValueError as e:
+            raise HTTPException(400, str(e))
+        except RuntimeError as e:
+            raise HTTPException(503, str(e))
+        return Response(content=wav, media_type="audio/wav", headers={"Cache-Control": "no-store"})
 
     @app.get("/missions")
     def missions():

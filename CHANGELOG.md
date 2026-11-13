@@ -4,7 +4,8 @@ Every merged pull request is logged in [issue #4](https://github.com/Sukonik/mar
 
 | Version | PR | Commit | Summary |
 | --- | --- | --- | --- |
-| [0.2.1](https://github.com/Sukonik/marsai/pull/13) | [#13](https://github.com/Sukonik/marsai/pull/13) | pending | Agent and browser tooling review, web tooling policy (no stealth tools), changelog hash fix |
+| [0.3.0](https://github.com/Sukonik/marsai/pull/14) | [#14](https://github.com/Sukonik/marsai/pull/14) | pending | Production mode: onboard core replaces demo mode; local voice (Whisper speech-to-text, Piper crew voices), push-to-talk with auto-stop, visible voice status, voice picker |
+| [0.2.1](https://github.com/Sukonik/marsai/pull/13) | [#13](https://github.com/Sukonik/marsai/pull/13) | [51e1578](https://github.com/Sukonik/marsai/commit/51e1578c95777ecfd55fda5b87d30754342618c1) | Agent and browser tooling review, web tooling policy (no stealth tools), changelog hash fix |
 | [0.2.0](https://github.com/Sukonik/marsai/pull/12) | [#12](https://github.com/Sukonik/marsai/pull/12) | [e776f42](https://github.com/Sukonik/marsai/commit/e776f429b8bb7cc13726227239882ccebfe990ff) | ShipCore local Python service (V1.1 track): no-key skills, optional Ollama, HUD link, browser voice, CI |
 | [0.1.6](https://github.com/Sukonik/marsai/pull/11) | [#11](https://github.com/Sukonik/marsai/pull/11) | [79719c2](https://github.com/Sukonik/marsai/commit/79719c26191951628b8626dfa77ad2540cd34d5f) | Power on / power off from the home screen, full-screen HUD v1 shell, website tabs, self-hosted JetBrains Mono |
 | [0.1.5](https://github.com/Sukonik/marsai/pull/10) | [#10](https://github.com/Sukonik/marsai/pull/10) | [f883584](https://github.com/Sukonik/marsai/commit/f883584627d8b5c1ee701b6c2880467804395b37) | Self-host Orbitron and Quantico, remove deprecated lockup from site, add HUD references |

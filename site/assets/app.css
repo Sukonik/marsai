@@ -154,3 +154,8 @@ footer{padding:1rem;border-top:1px solid var(--line);color:var(--muted);font-siz
 
 .hbtn.mini{min-height:32px;padding:.15rem .6rem;font-size:.62rem}
 .hbtn.listening{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,transparent)}
+
+.vset{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;margin-top:.4rem;color:var(--muted)}
+.vset select,.vset input[type=range]{min-height:36px;background:#0b1118;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:.2rem .4rem;max-width:100%}
+.vset input[type=range]{padding:0;min-width:120px}
+#voice-status{margin:0;min-height:1.1em;color:var(--signal)}

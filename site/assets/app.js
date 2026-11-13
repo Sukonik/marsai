@@ -72,7 +72,7 @@
   var slots = [
     ['♂︎', 'Talk to Mars', function () { setCrew('MARS'); }],
     ['♀︎', 'Talk to Venus', function () { setCrew('VENUS'); }],
-    ['⇄', 'Open Crew Link', function () { reply('Crew Link is a later build. LOCAL DEMO only.'); }],
+    ['⇄', 'Open Crew Link', function () { reply('Crew Link arrives in a later build.'); }],
     ['+', 'Create Mission', function () { setModule(2, true); reply('Mission creation arrives in a later build.'); }],
     ['◎', 'Open Crew', function () { setModule(1, true); }],
     ['◐', 'Change Theme', function () { setModule(4, true); }]
@@ -86,7 +86,7 @@
     b.addEventListener('click', s[2]);
     li.appendChild(b); rack.appendChild(li);
   });
-  function setCrew(n) { $('#crew').textContent = n; say('Active crew: ' + n); log('Active crew: ' + n); }
+  function setCrew(n) { $('#crew').textContent = n; say('Active crew: ' + n); log('Active crew: ' + n); if (window.MarsVoice) MarsVoice.refreshVoices(); }
 
   /* ---------- Console ---------- */
   var logEl = $('#log');
@@ -95,14 +95,14 @@
     while (logEl.children.length > 50) logEl.removeChild(logEl.firstChild);
     logEl.scrollTop = logEl.scrollHeight;
   }
-  function reply(t) { log(t); say(t); speak(t); }
+  function reply(t) { log(t); say(t); if (window.MarsVoice) MarsVoice.speak(t); }
   $('#console-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    var input = $('#cmd'), raw = input.value.trim(), cmd = raw.toLowerCase();
+    var input = $('#cmd'), raw = input.value.trim(), cmd = raw.toLowerCase().replace(/[.!,;]+$/, '').trim();
     if (!raw) return;
     log('> ' + raw); input.value = '';
     var idx = findModule(cmd.replace(/^(open|go to|goto)\s+/, ''));
-    if (cmd === 'help') reply('Commands: help, bridge, crew, missions, shipcore, theme lab, roadmap, mars, venus, connect, fullscreen, clear, power off. With ShipCore running: notes, new mission, joke, status, time, and chat.');
+    if (cmd === 'help') reply('Commands: help, bridge, crew, missions, shipcore, theme lab, roadmap, mars, venus, connect, fullscreen, clear, power off. Onboard skills: time, status, notes, new mission, my missions, complete mission N, joke. Run ShipCore for open conversation and local voice.');
     else if (idx > -1) setModule(idx, true);
     else if (cmd === 'mars' || cmd === 'venus') setCrew(cmd.toUpperCase());
     else if (cmd === 'fullscreen' || cmd === 'full screen') toggleFs();
@@ -110,7 +110,7 @@
     else if (cmd === 'power off' || cmd === 'off') power(false);
     else if (cmd === 'connect') checkLink(true);
     else if (link.online) ask(raw);
-    else reply('LOCAL DEMO: command not recognized. Type help, or run ShipCore locally (connect).');
+    else { var out = onboard(raw); reply(out || 'Onboard core: I know time, status, notes, missions, and jokes. Type help, or run ShipCore locally for open conversation (connect).'); }
   });
   $('#clear').addEventListener('click', function () { logEl.textContent = ''; $('#cmd').focus(); });
 
@@ -174,10 +174,10 @@
   function setLink(online, info) {
     link.online = online;
     var llm = online && info && info.providers && info.providers.some(function (p) { return p.available; });
-    $('#link-text').textContent = online ? (llm ? 'SHIPCORE + LOCAL AI' : 'SHIPCORE LOCAL') : 'LOCAL DEMO';
+    $('#link-text').textContent = online ? (llm ? 'SHIPCORE + LOCAL AI' : 'SHIPCORE') : 'ONBOARD CORE';
     $('#link-text2').textContent = $('#link-text').textContent;
     $('#node-net').textContent = online ? 'CONNECTED' : 'OFFLINE';
-    $('#node-core').textContent = online ? 'SHIPCORE' : 'ONLINE';
+    $('#node-core').textContent = online ? 'HANDED OFF' : 'ONLINE';
   }
   function timeoutFetch(url, opts, ms) {
     var c = new AbortController(), id = setTimeout(function () { c.abort(); }, ms);
@@ -187,8 +187,8 @@
   function checkLink(announce) {
     return timeoutFetch(SHIPCORE + '/health', {}, 1500)
       .then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); })
-      .then(function (info) { setLink(true, info); if (announce) reply('ShipCore connected (v' + info.version + ').'); })
-      .catch(function () { setLink(false); if (announce) reply('ShipCore not found on this machine. Staying in LOCAL DEMO. See docs/SHIPCORE.md.'); });
+      .then(function (info) { setLink(true, info); if (window.MarsVoice) MarsVoice.refresh(); if (announce) reply('ShipCore connected (v' + info.version + ').'); })
+      .catch(function () { setLink(false); if (announce) if (window.MarsVoice) MarsVoice.refresh(); if (announce) reply('ShipCore not found on this machine. Using the onboard core. See docs/SHIPCORE.md.'); });
   }
   function ask(raw) {
     log('...'); var pending = logEl.lastChild;
@@ -198,46 +198,69 @@
     }, 95000)
       .then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); })
       .then(function (d) { if (pending) pending.remove(); reply(d.speaker + ': ' + d.reply); })
-      .catch(function () { if (pending) pending.remove(); setLink(false); reply('ShipCore link lost. Back to LOCAL DEMO.'); });
+      .catch(function () { if (pending) pending.remove(); setLink(false); reply('ShipCore link lost. Back to the onboard core.'); });
   }
 
-  /* ---------- Browser voice (no key; optional; never required) ---------- */
-  var micBtn = $('#mic'), speakBtn = $('#speak-toggle');
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  var rec = null, speakOn = false, listening = false;
-  var canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
-  if (SR) { micBtn.hidden = false; }
-  if (canSpeak) { speakBtn.hidden = false; }
-  $('#voice-state').textContent = (SR || canSpeak) ? (SR && canSpeak ? 'MIC + SPEAKER' : SR ? 'MIC' : 'SPEAKER') : 'UNAVAILABLE';
-  $('#node-voice').textContent = $('#voice-state').textContent;
-  function speak(text) {
-    if (!speakOn || !canSpeak) return;
-    speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(text); u.lang = navigator.language || 'en-US';
-    speechSynthesis.speak(u);
+
+  /* ---------- Onboard core (works with no Python; data stays in this browser) ---------- */
+  var STATE_KEY = 'marsai.state', mem = { notes: [], missions: [], next: 1 };
+  try { var d0 = JSON.parse(localStorage.getItem(STATE_KEY) || 'null'); if (d0 && d0.notes && d0.missions) mem = d0; } catch (e) {}
+  function persist() { try { localStorage.setItem(STATE_KEY, JSON.stringify(mem)); } catch (e) {} }
+  function clean(s) { return s.replace(/\s+/g, ' ').replace(/^[,;:.\s-]+/, '').trim().slice(0, 500); }
+  var JOKES = [
+    'Why did the astronaut break up with the planet? It needed more space.',
+    'I told the ship\'s AI a joke about gravity. It really fell for it.',
+    'Mars has great hotels, but no atmosphere.',
+    'Why did the comet get promoted? It was always going places.',
+    'A moon walked into a bar. It was only a phase.',
+    'The crew held a meeting in orbit. It went around in circles.'
+  ];
+  function onboard(raw) {
+    var m, text = raw.trim().replace(/[.!,;]+$/, '').trim();  // speech-to-text often adds punctuation
+    if ((m = text.match(/^(?:complete|finish|done)\s+mission\s+#?(\d+)$/i))) {
+      var id = parseInt(m[1], 10), found = mem.missions.filter(function (x) { return x.id === id; })[0];
+      if (!found) return 'No mission with that number. Try: my missions.';
+      found.done = true; persist(); return 'Mission #' + id + ' complete: ' + found.title + '. Experience logged.';
+    }
+    if ((m = text.match(/^(?:new|create|add)\s+mission\s*[:\-]?\s*(.*)$/i))) {
+      if (!m[1].trim()) return 'Name the mission. Try: new mission learn to bake bread.';
+      var mi = { id: mem.next++, title: clean(m[1]), done: false }; mem.missions.push(mi); mem.missions = mem.missions.slice(-500); persist();
+      return 'Mission #' + mi.id + ' created: ' + mi.title;
+    }
+    if (/^(?:my\s+missions|list\s+missions|show\s+missions)$/i.test(text)) {
+      if (!mem.missions.length) return 'No missions yet. Try: new mission <title>.';
+      return 'Missions: ' + mem.missions.slice(-10).map(function (x) { return '#' + x.id + ' [' + (x.done ? 'done' : 'open') + '] ' + x.title; }).join(' | ');
+    }
+    if ((m = text.match(/^(?:note|remember)(?:\s*[:\-,]\s*|\s+)(.+)$/i))) {
+      var n = { id: mem.next++, text: clean(m[1]) }; mem.notes.push(n); mem.notes = mem.notes.slice(-500); persist();
+      return 'Noted (#' + n.id + '): ' + n.text;
+    }
+    if (/^(?:notes|my\s+notes|list\s+notes)$/i.test(text)) {
+      if (!mem.notes.length) return 'No notes yet. Try: note <text>.';
+      return 'Notes: ' + mem.notes.slice(-10).map(function (x) { return '#' + x.id + ' ' + x.text; }).join(' | ');
+    }
+    if (/^(?:what(?:'s| is)?\s+)?(?:the\s+)?(?:time|date|day)(?:\s+(?:is it|now|today))?\??$/i.test(text)) {
+      return 'It is ' + new Date().toLocaleString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }) + '.';
+    }
+    if (/^(?:system\s+)?status\??$|^how(?:'s| is)\s+the\s+ship\??$/i.test(text)) {
+      var bits = ['Onboard core online', navigator.onLine ? 'network up' : 'network down', (navigator.hardwareConcurrency || '?') + ' cores'];
+      if (navigator.deviceMemory) bits.push(navigator.deviceMemory + ' GB memory class');
+      bits.push('ShipCore ' + (link.online ? 'connected' : 'not connected'));
+      return bits.join(' | ');
+    }
+    if (/^(?:tell\s+me\s+)?(?:a\s+)?joke$/i.test(text)) return JOKES[Math.floor(Date.now() / 5000) % JOKES.length];
+    return null;
   }
-  function stopVoice() {
-    if (rec && listening) { try { rec.stop(); } catch (e) {} }
-    listening = false; micBtn.setAttribute('aria-pressed', 'false'); micBtn.classList.remove('listening'); micBtn.textContent = 'MIC';
-    if (canSpeak) speechSynthesis.cancel();
-  }
-  if (SR) micBtn.addEventListener('click', function () {
-    if (listening) { stopVoice(); return; }
-    rec = new SR(); rec.lang = navigator.language || 'en-US'; rec.interimResults = false; rec.maxAlternatives = 1;
-    rec.onresult = function (e) {
-      var said = e.results[0][0].transcript.trim();
-      if (said) { $('#cmd').value = said; $('#console-form').requestSubmit(); }
-    };
-    rec.onerror = function (e) { reply('Voice input unavailable: ' + (e.error || 'error') + '. Typing still works.'); };
-    rec.onend = function () { listening = false; micBtn.setAttribute('aria-pressed', 'false'); micBtn.classList.remove('listening'); micBtn.textContent = 'MIC'; };
-    try { rec.start(); listening = true; micBtn.setAttribute('aria-pressed', 'true'); micBtn.classList.add('listening'); micBtn.textContent = 'LISTENING'; say('Listening'); }
-    catch (e) { reply('Could not start the microphone.'); }
-  });
-  if (canSpeak) speakBtn.addEventListener('click', function () {
-    speakOn = !speakOn;
-    speakBtn.setAttribute('aria-pressed', speakOn);
-    speakBtn.textContent = 'SPEAK REPLIES: ' + (speakOn ? 'ON' : 'OFF');
-    if (!speakOn) speechSynthesis.cancel();
+
+  /* ---------- Voice ---------- */
+  if (window.MarsVoice) MarsVoice.init({
+    base: SHIPCORE,
+    getCrew: function () { return $('#crew').textContent; },
+    onTranscript: function (txt) {
+      $('#cmd').value = txt;
+      var f = $('#console-form');
+      if (f.requestSubmit) f.requestSubmit(); else f.dispatchEvent(new Event('submit', { cancelable: true }));
+    }
   });
 
   /* ---------- Power ---------- */
@@ -253,11 +276,11 @@
       try { history.replaceState(null, '', '#hud'); } catch (e) {}
       $('#hud-title').focus();
       say('HUD powered on. Local demo, no provider connected.');
-      log('Power on. LOCAL DEMO.');
+      log('Power on.');
       checkLink(false);
     } else {
       if (fsEl()) { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {} }
-      stopClock(); closeDrawer(); stopVoice();
+      stopClock(); closeDrawer(); if (window.MarsVoice) MarsVoice.stop();
       hud.hidden = true;
       site.inert = false;
       document.body.classList.remove('hud-on');

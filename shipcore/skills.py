@@ -69,7 +69,7 @@ def _joke(_m: re.Match, _s: Store) -> str:
 
 
 def _note_add(m: re.Match, s: Store) -> str:
-    text = m.group("text").strip()
+    text = _title(m.group("text"))
     if not text:
         return "What should the note say? Try: note buy filters for the ship."
     n = s.add_note(text)
@@ -83,8 +83,12 @@ def _notes_list(_m: re.Match, s: Store) -> str:
     return "Notes:\n" + "\n".join(f"#{n['id']} {n['text']}" for n in notes[-10:])
 
 
+def _title(raw: str) -> str:
+    return raw.strip().lstrip(",;:.- ").strip()
+
+
 def _mission_add(m: re.Match, s: Store) -> str:
-    title = m.group("title").strip()
+    title = _title(m.group("title"))
     if not title:
         return "Name the mission. Try: new mission learn to bake bread."
     ms = s.add_mission(title)
@@ -113,7 +117,7 @@ SKILLS: list[Skill] = [
           "new mission <title>"),
     Skill("missions_list", re.compile(r"^(?:my\s+missions|list\s+missions|show\s+missions)$", re.I), _missions_list,
           "my missions"),
-    Skill("note_add", re.compile(r"^(?:note|remember)(?:\s*[:\-]\s*|\s+)(?P<text>.+)$", re.I), _note_add, "note <text>"),
+    Skill("note_add", re.compile(r"^(?:note|remember)(?:\s*[:\-,]\s*|\s+)(?P<text>.+)$", re.I), _note_add, "note <text>"),
     Skill("notes_list", re.compile(r"^(?:notes|my\s+notes|list\s+notes)$", re.I), _notes_list, "notes"),
     Skill("time", re.compile(r"^(?:what(?:'s| is)?\s+)?(?:the\s+)?(?:time|date|day)(?:\s+(?:is it|now|today))?\??$", re.I),
           _time, "time"),
@@ -126,7 +130,7 @@ SKILLS: list[Skill] = [
 
 def run_skill(message: str, store: Store) -> tuple[str, str] | None:
     """Return (skill_name, reply) if a skill matches, else None."""
-    text = message.strip()
+    text = message.strip().rstrip(".!,;").strip()  # speech-to-text often adds punctuation
     for skill in SKILLS:
         m = skill.pattern.match(text)
         if m:
