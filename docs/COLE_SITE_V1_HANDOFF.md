@@ -91,9 +91,9 @@ Do not apply glow to body text. Glow is reserved for active controls, signal tra
 
 ## 🪐 Primary identity
 
-### Official logo mark (provided)
+### Official logo system (provided)
 
-The official MARSAI mark is in [`assets/brand/`](../assets/brand/) (PNG, WebP, app-icon sizes, `favicon.ico`). Use it as the default logo and favicon in Site V1. A wordmark, lockups, SVG master, and zip are coming; build the header and favicon slots so they can be swapped in without layout changes.
+The official vector emblem, wordmarks, subtag, and lockups are in [`public/brand/`](../public/brand/) and documented in [`LOGO_HANDOFF.md`](LOGO_HANDOFF.md). Raster app icons and `favicon.ico` are in [`assets/brand/`](../assets/brand/). Use the SVGs for the header and hero, and the raster files for the favicon and manifest. The bridge shell in [`site/`](../site/) already uses them. A brand zip is still to come.
 
 ### Standard logo
 
