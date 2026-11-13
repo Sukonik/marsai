@@ -4,7 +4,8 @@ Every merged pull request is logged in [issue #4](https://github.com/Sukonik/mar
 
 | Version | PR | Commit | Summary |
 | --- | --- | --- | --- |
-| [0.1.2](https://github.com/Sukonik/marsai/pull/7) | [#7](https://github.com/Sukonik/marsai/pull/7) | pending | Bridge shell landing page with SVG logo, Pages deploy workflow, changelog fix |
+| [0.1.3](https://github.com/Sukonik/marsai/pull/8) | [#8](https://github.com/Sukonik/marsai/pull/8) | pending | Clean sweep: fix stale brand and handoff notes, changelog hash, site version label |
+| [0.1.2](https://github.com/Sukonik/marsai/pull/7) | [#7](https://github.com/Sukonik/marsai/pull/7) | [c046a2d](https://github.com/Sukonik/marsai/commit/c046a2d8726dabd3255139e212ab801339517d2e) | Bridge shell landing page with SVG logo, Pages deploy workflow, changelog fix |
 | [0.1.1](https://github.com/Sukonik/marsai/pull/6) | [#6](https://github.com/Sukonik/marsai/pull/6) | [ebdc37d](https://github.com/Sukonik/marsai/commit/ebdc37d8e35d10d16d8b02cfcc6b8ed825229e60) | Logo and wordmark system (SVG emblem, wordmarks, lockups, logo handoff) |
 | [0.1.0](https://github.com/Sukonik/marsai/pull/5) | [#5](https://github.com/Sukonik/marsai/pull/5) | [cb56949](https://github.com/Sukonik/marsai/commit/cb56949761d0c5a978e7184219b2679e7d6055a7) | Official logo mark, brand assets, changelog, README links |
 | [0.0.3](https://github.com/Sukonik/marsai/pull/3) | [#3](https://github.com/Sukonik/marsai/pull/3) | [7e2210c](https://github.com/Sukonik/marsai/commit/7e2210c0579fa34fa84660b29105186e9a2db076) | Cole's Site V1 development handoff |

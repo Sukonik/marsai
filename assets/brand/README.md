@@ -9,4 +9,4 @@ Official logo mark: planet-and-orbit emblem inside a shield.
 | `marsai-mark-180.png` | Apple touch icon |
 | `marsai-mark-32.png`, `favicon.ico` | Browser favicon |
 
-Wordmark, compact and full lockups, and the vector (SVG) master are coming. Until then, Site V1 should use this mark as the default identity and favicon. Version history is published with each update.
+These PNG, WebP, and `.ico` files are the raster mark and favicon set. The vector emblem, wordmarks, subtag, and lockups live in [`public/brand/`](../../public/brand/) and are documented in [`docs/LOGO_HANDOFF.md`](../../docs/LOGO_HANDOFF.md). Prefer the SVGs wherever possible. A brand zip is still to come. Version history is in [`CHANGELOG.md`](../../CHANGELOG.md).
