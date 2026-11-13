@@ -4,7 +4,7 @@
 
 # 🪐 MARSAI
 
-[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.1.0**
+[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.1.2**
 
 ## ONE GALAXY. INFINITE STORIES.
 
@@ -354,6 +354,8 @@ Development handoffs:
 
 Each merged pull request is a version, logged in [issue #4](https://github.com/Sukonik/marsai/issues/4) and [CHANGELOG.md](CHANGELOG.md).
 
+- [v0.1.2](https://github.com/Sukonik/marsai/pull/7): bridge shell site and Pages deploy
+- [v0.1.1](https://github.com/Sukonik/marsai/pull/6): logo and wordmark system
 - [v0.1.0](https://github.com/Sukonik/marsai/pull/5): logo and brand assets
 - [v0.0.3](https://github.com/Sukonik/marsai/pull/3): Site V1 handoff
 - [v0.0.2](https://github.com/Sukonik/marsai/pull/2): crew sigils
