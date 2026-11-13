@@ -15,6 +15,7 @@
 <meta property="og:image" content="assets/marsai-mark-512.png">
 <link rel="stylesheet" href="assets/app.css">
 <script src="assets/voice.js" defer></script>
+<script src="assets/brain.js" defer></script>
 <script src="assets/app.js" defer></script>
 </head>
 <body>
@@ -72,7 +73,7 @@
 
   <footer>
     <a href="https://github.com/Sukonik/marsai">GitHub</a> ·
-    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.3.0
+    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.4.0
   </footer>
 </div>
 
@@ -138,6 +139,7 @@
       <p class="mono small" id="module-kicker">MODULE 01</p>
       <h3 id="module-title" class="panel-hud-title">BRIDGE</h3>
       <p id="module-desc"></p>
+      <div id="module-extra" class="module-extra"></div>
     </div>
   </main>
 
@@ -146,19 +148,22 @@
   </aside>
 
   <footer class="console">
+    <div id="convo" class="convo" role="log" aria-live="polite" aria-label="Conversation"></div>
     <form id="console-form" autocomplete="off">
       <label for="cmd" class="mono small">COMMAND <span class="badge" id="link-text2">ONBOARD CORE</span></label>
       <div class="row">
-        <input id="cmd" class="mono" type="text" placeholder="Type help" enterkeyhint="send" autocapitalize="off" spellcheck="false">
+        <input id="cmd" class="mono" type="text" placeholder="Say hello, ask the weather, or type help" enterkeyhint="send" autocapitalize="off" spellcheck="false">
         <button type="button" class="hbtn" id="mic" aria-pressed="false" hidden title="Talk to the ship. Uses local ShipCore Whisper when running, otherwise your browser speech service.">MIC</button>
         <button type="submit" class="hbtn primary">SEND</button>
         <button type="button" class="hbtn" id="clear">CLEAR</button>
       </div>
     </form>
     <div class="console-meta mono small">
-      <span>ACTIVE CREW: <b id="crew">MARS</b></span>
+      <span>ACTIVE CREW: <b id="crew">🔴 Mars</b></span>
       <span>VOICE: <b id="voice-state">UNAVAILABLE</b></span>
       <button type="button" class="hbtn mini" id="speak-toggle" aria-pressed="false" hidden>SPEAK REPLIES: OFF</button>
+      <button type="button" class="hbtn mini" id="brain-btn" aria-pressed="false" title="Open conversation with a small AI model that runs in this browser (downloads about 400 MB once)">AI BRAIN: OFF</button>
+      <button type="button" class="hbtn mini" id="web-btn" aria-pressed="true" title="Weather and Wikipedia lookups (no key). Every request is logged.">WEB LOOKUPS: ON</button>
       <span class="kbd-hint">Esc: power off</span>
     </div>
     <p id="voice-status" class="mono small" role="status" aria-live="polite"></p>
@@ -166,10 +171,12 @@
       <summary class="mono small">VOICE SETTINGS</summary>
       <div class="vset">
         <span class="mono small" id="voice-engine"></span>
+        <span class="mono small" id="voice-crew"></span>
         <label class="mono small">Voice <select id="voice-select"></select></label>
         <label class="mono small">Speed <input id="voice-rate" type="range" min="0.7" max="1.3" step="0.05" value="1"></label>
         <button type="button" class="hbtn mini" id="voice-test">TEST VOICE</button>
       </div>
+      <div class="phrases" id="phrases" aria-label="Recorded phrases"></div>
     </details>
     <details class="log">
       <summary class="mono small">SYSTEM LOG</summary>

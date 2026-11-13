@@ -15,22 +15,53 @@ The HUD shows which engine is active (for example `LISTEN: LOCAL WHISPER | SPEAK
 
 Click **MIC** and speak. With local Whisper the HUD records from your microphone, stops by itself about 1.4 seconds after you stop talking (or after 30 seconds), sends the clip to ShipCore on this machine, and runs the transcript as a command. Whisper is primed with MARSAI vocabulary (new mission, open crew, ShipCore, Mars, Venus) and speech punctuation is normalized, so "New mission, learn baking." works.
 
-### Speaking
+### Speaking: every crew member has their own voice
 
-Turn on **SPEAK REPLIES** to hear replies. Mars and Venus have separate voices: Piper voices `en_GB-alan-medium` and `en_GB-jenny_dioco-medium` (calm British register, steady for Mars, warmer for Venus). Without Piper, the HUD picks the most natural browser voice it can find (neural or online voices rank first, robotic or compact voices are avoided) and applies a per-crew pitch and pace. **Voice Settings** lets the captain choose a specific browser voice, change speed, and test it. Settings persist in the browser.
+The README's framework says voices belong to the device and are separate from personality and intelligence. MARSAI follows it:
+
+1. **Recorded phrases** (the captain's own voice): in Voice Settings, record a greeting, confirmation, warning, and mission celebration for any crew member. They are stored only on this device (IndexedDB) and play instead of the spoken reply for that event. Record only your own voice.
+2. **Local crew voices** (ShipCore + Piper): one 109-speaker neural model (`en_GB-vctk-medium`) gives **all 20 crew members a distinct voice**, matched to gender, pitch, and pace from their personality in `shipcore/crew.json`:
+
+| Crew | Role | Voice | Piper speaker (pitch) | Pace |
+| --- | --- | --- | --- | --- |
+| 🔴 Mars | Mediator | male | p360 (93 Hz) | slower |
+| 🟡 Venus | Guardian | female | p269 (184 Hz) | even |
+| 🥊 Pluto | Rival | male | p316 (92 Hz) | brisk |
+| ⚡ Mercury | Prodigy | male | p259 (116 Hz) | brisk |
+| 📚 Atlas | Scholar | male | p226 (109 Hz) | slower |
+| 🌞 Sirius | Optimist | male | p363 (103 Hz) | even |
+| 🧭 Neptune | Explorer | male | p275 (106 Hz) | brisk |
+| 🪨 Saturn | Veteran | male | p245 (88 Hz) | slower |
+| 🛡️ Oberon | Guardian | male | p364 (96 Hz) | slower |
+| 🎖️ Jupiter | Commander | male | p256 (88 Hz) | slower |
+| 🤝 Pollux | Companion | male | p271 (118 Hz) | even |
+| 🃏 Eris | Maverick | female | p228 (197 Hz) | brisk |
+| 🔥 Luna | Rebel | female | s5 (210 Hz) | even |
+| ⚔️ Bellatrix | Warrior | female | p236 (230 Hz) | brisk |
+| 📋 Vesta | Officer | female | p265 (190 Hz) | even |
+| 🕊️ Europa | Diplomat | female | p306 (182 Hz) | slower |
+| 🛠️ Vega | Engineer | female | p323 (207 Hz) | brisk |
+| 🏹 Rhea | Guardian | female | p333 (179 Hz) | slower |
+| 👑 Polaris | Commander | female | p231 (175 Hz) | slower |
+| 🚀 Io | Ace | female | p329 (204 Hz) | brisk |
+
+3. **Device voices** (no ShipCore): the HUD picks the most natural matching browser or OS voice for each crew member (neural and online voices first, robotic voices avoided), spreads crew members across the best matches, and tunes pitch and pace per personality. **Voice Settings** lets the captain choose a different device voice for each crew member; the choice is saved per device. Voice quality depends on what the device has installed.
+4. **Future custom speech**: consent-based adapters (see policy below).
+
+Turn on **SPEAK REPLIES** to hear replies. Speaker labels always show the sigil and name (for example `🥊 Pluto`), as in the README.
 
 ## Set it up
 
 ```bash
 pip install -e ".[voice]"
-python -m shipcore voice-setup      # downloads Piper voices and the Whisper model once
+python -m shipcore voice-setup      # downloads the crew voice model (77 MB) and Whisper (140 MB) once
 python -m shipcore
 ```
 
 - Default speech model is `base.en` (about 140 MB, English). For other languages set `MARSAI_STT_MODEL=small` (or larger) and `MARSAI_STT_LANG=` (empty for auto-detect). Larger models are slower but more accurate.
 - CPU only is fine: a short command transcribes in about a second on a laptop CPU with `tiny.en` or `base.en`.
-- Voices live in `~/.marsai/voices` (override with `MARSAI_HOME`).
-- **Voice licenses.** Each Piper voice has its own license in its model card on [huggingface.co/rhasspy/piper-voices](https://huggingface.co/rhasspy/piper-voices). Review it before redistributing generated audio or shipping a voice with a product.
+- The voice model lives in `~/.marsai/voices` (override with `MARSAI_HOME`).
+- **Voice license.** The crew voice model is trained on the VCTK corpus (distributed under CC BY 4.0; confirm in the model card on [huggingface.co/rhasspy/piper-voices](https://huggingface.co/rhasspy/piper-voices)). Review it before redistributing generated audio or shipping the voices in a product.
 
 ## Voice policy
 
@@ -57,5 +88,5 @@ Concepts only; no code copied.
 1. An OpenAI-compatible `/v1/audio/speech` alias on ShipCore so other local tools can reuse crew voices
 1. A visible "speaking" state in the HUD (Voicebox idea)
 2. A "wake word" hold-to-talk key, never always-on listening
-3. More Piper voices per crew member, selectable in Voice Settings
+3. Per-crew voice selection among Piper speakers in Voice Settings, and language packs for non-English crew voices
 4. Higher-quality or expressive TTS engines (see the reference notes above for candidates), local only

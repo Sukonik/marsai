@@ -187,3 +187,55 @@ def test_transcript_punctuation_is_normalized(core):
     assert "created: learn baking" in core.chat("New mission, learn baking.").text
     assert "Noted (#" in core.chat("Note, buy filters.").text
     assert core.chat("Help.").source == "skill:help"
+
+
+# ---------- crew framework (from the README) ----------
+import json  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+from shipcore import crew as crew_mod  # noqa: E402
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def test_crew_roster_matches_readme():
+    crew = crew_mod.load()["crew"]
+    assert len(crew) == 20
+    groups = [c["group"] for c in crew]
+    assert groups.count("foundational") == 2 and groups.count("male") == 9 and groups.count("female") == 9
+    names = {c["name"] for c in crew}
+    assert {"Mars", "Venus", "Pluto", "Mercury", "Atlas", "Sirius", "Neptune", "Saturn", "Oberon", "Jupiter",
+            "Pollux", "Eris", "Luna", "Bellatrix", "Vesta", "Europa", "Vega", "Rhea", "Polaris", "Io"} == names
+    sigils = {c["name"]: c["sigil"] for c in crew}
+    assert sigils["Pluto"] == "🥊" and sigils["Europa"] == "🕊️" and sigils["Mars"] == "🔴"
+    assert len({c["voice"]["piper_speaker"] for c in crew}) == 20          # every crew voice is distinct
+    for c in crew:
+        for key in ("greet", "how", "thanks", "bye", "cheer", "intro", "unknown"):
+            assert c["lines"][key], (c["id"], key)
+        assert c["gender"] in ("m", "f") and c["persona"] and c["role"]
+
+
+def test_hud_crew_file_is_in_sync():
+    assert (ROOT / "site/assets/crew.json").read_text(encoding="utf-8") == (ROOT / "shipcore/crew.json").read_text(encoding="utf-8")
+
+
+def test_chat_speaker_is_crew_member_with_sigil(client):
+    d = client.post("/chat", json={"message": "help", "crew": "pluto"}).json()
+    assert d["speaker"] == "PLUTO" and d["label"] == "🥊 Pluto"
+    assert client.post("/chat", json={"message": "help", "crew": "nobody"}).json()["speaker"] == "MARS"
+    assert len(client.get("/crew").json()["crew"]) == 20
+
+
+def test_persona_reaches_the_language_model_prompt():
+    from shipcore.providers.ollama import SYSTEM
+
+    c = crew_mod.get("SATURN")
+    prompt = SYSTEM.format(name=c["name"], role=c["role"], persona=c["persona"])
+    assert "Saturn" in prompt and "Veteran" in prompt and "Gruff" in prompt
+
+
+@pytest.mark.skipif(not __import__("os").environ.get("MARSAI_VOICE_IT"), reason="needs local models: set MARSAI_VOICE_IT=1")
+def test_crew_voices_really_differ():
+    eng = VoiceEngine()
+    a, b, c = (eng.synthesize("Systems nominal.", n) for n in ("MARS", "VENUS", "SATURN"))
+    assert len({a, b, c}) == 3

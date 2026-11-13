@@ -1,11 +1,12 @@
 """ShipCore voice engine: local speech-to-text and text-to-speech. No key, offline.
 
 - Speech to text: faster-whisper (Whisper models), with built-in silence filtering.
-- Text to speech: Piper neural voices (ONNX), one voice per crew member.
+- Text to speech: Piper neural voices (ONNX). One 109-speaker model (VCTK) gives each of the
+  20 crew members a distinct voice, matched to gender and personality in crew.json.
 
 Both are optional extras (`pip install -e ".[voice]"`). Everything runs on this
 machine. Voice models are downloaded once by `python -m shipcore voice-setup`;
-each Piper voice has its own license in its model card on Hugging Face.
+the voice model's license (VCTK-derived, see its model card on Hugging Face) applies.
 """
 from __future__ import annotations
 
@@ -16,6 +17,7 @@ import urllib.request
 import wave
 from pathlib import Path
 
+from . import crew as crew_mod
 from .storage import default_home
 
 MAX_TTS_CHARS = 600
@@ -27,11 +29,9 @@ STT_PROMPT = (
 )
 
 PIPER_BASE = "https://huggingface.co/rhasspy/piper-voices/resolve/main"
-# crew -> (voice name, path inside the piper-voices repo)
-CREW_VOICES = {
-    "MARS": ("en_GB-alan-medium", "en/en_GB/alan/medium/en_GB-alan-medium"),
-    "VENUS": ("en_GB-jenny_dioco-medium", "en/en_GB/jenny_dioco/medium/en_GB-jenny_dioco-medium"),
-}
+# One multi-speaker model (VCTK, 109 speakers) gives every crew member a distinct voice.
+PIPER_MODEL = "en_GB-vctk-medium"
+PIPER_PATH = "en/en_GB/vctk/medium/en_GB-vctk-medium"
 
 
 def _have(module: str) -> bool:
@@ -58,15 +58,17 @@ class VoiceEngine:
     def stt_available(self) -> bool:
         return _have("faster_whisper")
 
+    def model_installed(self) -> bool:
+        return (self.voice_dir / f"{PIPER_MODEL}.onnx").exists() and (self.voice_dir / f"{PIPER_MODEL}.onnx.json").exists()
+
     def installed_voices(self) -> dict[str, str]:
-        out = {}
-        for crew, (name, _path) in CREW_VOICES.items():
-            if (self.voice_dir / f"{name}.onnx").exists() and (self.voice_dir / f"{name}.onnx.json").exists():
-                out[crew] = name
-        return out
+        """crew id -> Piper speaker for every crew member (empty if the model is missing)."""
+        if not self.model_installed():
+            return {}
+        return {c["id"]: c["voice"]["piper_speaker"] for c in crew_mod.load()["crew"]}
 
     def tts_available(self) -> bool:
-        return _have("piper") and bool(self.installed_voices())
+        return _have("piper") and self.model_installed()
 
     def status(self) -> dict:
         voices = self.installed_voices()
@@ -94,23 +96,26 @@ class VoiceEngine:
 
     # ---- text to speech ----
     def synthesize(self, text: str, crew: str = "MARS") -> bytes:
-        crew = crew.upper() if crew.upper() in CREW_VOICES else "MARS"
-        voices = self.installed_voices()
-        if not _have("piper") or crew not in voices:
+        c = crew_mod.get(crew)
+        if not _have("piper") or not self.model_installed():
             raise RuntimeError("text-to-speech voice not installed (python -m shipcore voice-setup)")
         text = " ".join(text.split())[:MAX_TTS_CHARS]
         if not text:
             raise ValueError("nothing to say")
         with self._tts_lock:
-            voice = self._piper.get(crew)
+            voice = self._piper.get("model")
             if voice is None:
                 from piper import PiperVoice
 
-                voice = PiperVoice.load(str(self.voice_dir / f"{voices[crew]}.onnx"))
-                self._piper[crew] = voice
+                voice = PiperVoice.load(str(self.voice_dir / f"{PIPER_MODEL}.onnx"))
+                self._piper["model"] = voice
+            from piper import SynthesisConfig
+
+            spk_map = voice.config.speaker_id_map or {}
+            cfg = SynthesisConfig(speaker_id=spk_map.get(c["voice"]["piper_speaker"], 0), length_scale=c["voice"]["pace"])
             buf = io.BytesIO()
             with wave.open(buf, "wb") as wav:
-                voice.synthesize_wav(text, wav)
+                voice.synthesize_wav(text, wav, syn_config=cfg)
             return buf.getvalue()
 
 
@@ -127,18 +132,17 @@ def _download(url: str, dest: Path) -> None:
 
 
 def setup(home: Path | None = None, stt_model: str | None = None) -> None:
-    """Download the Whisper model and one Piper voice per crew member."""
+    """Download the Whisper model and the multi-speaker Piper voice model (all 20 crew voices)."""
     eng = VoiceEngine(home)
     print("MARSAI voice setup (everything runs locally after download).")
-    print("Piper voices come from huggingface.co/rhasspy/piper-voices. Each voice has its own license")
-    print("in its model card; review it before redistributing any audio you generate.")
-    for crew, (name, path) in CREW_VOICES.items():
-        for ext in (".onnx", ".onnx.json"):
-            dest = eng.voice_dir / f"{name}{ext}"
-            if dest.exists():
-                continue
-            print(f"  downloading {crew} voice {name}{ext} ...")
-            _download(f"{PIPER_BASE}/{path}{ext}", dest)
+    print("The crew voice model comes from huggingface.co/rhasspy/piper-voices (en_GB-vctk-medium,")
+    print("trained on the VCTK corpus). Review its model card and license before redistributing audio.")
+    for ext in (".onnx", ".onnx.json"):
+        dest = eng.voice_dir / f"{PIPER_MODEL}{ext}"
+        if dest.exists():
+            continue
+        print(f"  downloading crew voice model {PIPER_MODEL}{ext} ...")
+        _download(f"{PIPER_BASE}/{PIPER_PATH}{ext}", dest)
     if eng.stt_available():
         from faster_whisper import WhisperModel
 

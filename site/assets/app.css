@@ -159,3 +159,22 @@ footer{padding:1rem;border-top:1px solid var(--line);color:var(--muted);font-siz
 .vset select,.vset input[type=range]{min-height:36px;background:#0b1118;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:.2rem .4rem;max-width:100%}
 .vset input[type=range]{padding:0;min-width:120px}
 #voice-status{margin:0;min-height:1.1em;color:var(--signal)}
+
+.convo{max-height:9.5rem;overflow-y:auto;display:grid;gap:.3rem;padding:.1rem 0 .3rem;scroll-behavior:smooth}
+.convo:empty{display:none}
+.msg{padding:.35rem .6rem;border-radius:8px;max-width:min(100%,68ch);font-size:.92rem;line-height:1.45;overflow-wrap:anywhere}
+.msg .who{font-family:var(--font-display);font-size:.62rem;letter-spacing:.12em;font-weight:700;display:block;margin-bottom:.1rem;color:var(--muted)}
+.msg.you{justify-self:end;background:#16222e;border:1px solid var(--line)}
+.msg.crew{justify-self:start;background:var(--panel);border:1px solid color-mix(in srgb,var(--signal) 40%,var(--line))}
+.msg.crew .who{color:var(--signal)}
+.msg.sys{justify-self:start;color:var(--muted);font-family:var(--font-mono);font-size:.74rem;padding:.1rem .3rem}
+.module-extra{margin-top:.75rem;max-height:34vh;overflow-y:auto;text-align:left}
+.roster h4{margin:.6rem 0 .3rem;font-family:var(--font-display);font-size:.62rem;letter-spacing:.16em;color:var(--accent)}
+.roster ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.35rem}
+.roster button{width:100%;min-height:44px;text-align:left;display:flex;gap:.45rem;align-items:center;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:transparent;font-size:.8rem;cursor:pointer}
+.roster button[aria-pressed=true]{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.roster .sig{font-size:1.1rem}
+.roster .rl{color:var(--muted);font-size:.7rem;display:block}
+.phrases{display:grid;gap:.3rem;margin-top:.5rem;width:100%}
+.phrases .row2{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.phrases .lbl{min-width:7.5rem;font-family:var(--font-mono);font-size:.75rem;color:var(--muted)}

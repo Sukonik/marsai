@@ -19,12 +19,21 @@ Optional extras: `pip install -e ".[status]"` adds memory usage to the `status` 
 | --- | --- | --- |
 | 1. Skills | Deterministic, original, local-only skills: `help`, `time`, `status`, `notes`, `new mission`, `my missions`, `complete mission N`, `joke` | Built |
 | 2. Local model | [Ollama](https://ollama.com) on this machine (`MARSAI_OLLAMA_MODEL`, default `llama3.2`) for open conversation | Built, used only if Ollama is running |
-| 3. Local voice | Whisper (faster-whisper) speech-to-text and Piper neural voices, one per crew member, fully offline. See [VOICE.md](VOICE.md) | Built (`pip install -e ".[voice]"`, `python -m shipcore voice-setup`) |
+| 3. Local voice | Whisper (faster-whisper) speech-to-text and Piper neural voices, a distinct one for each of the 20 crew members, fully offline. See [VOICE.md](VOICE.md) | Built (`pip install -e ".[voice]"`, `python -m shipcore voice-setup`) |
 | 4. Browser voice | Web Speech API fallback when ShipCore voice is not running. No key; some browsers send audio to their own speech provider, so it is opt-in per click | Built |
 | 5. In-browser model | WebLLM or transformers.js so the Pages site can chat with no Python at all | Planned |
 | 6. Bring your own key | Optional hosted providers behind the same `Provider` interface | Later, off by default |
 
 Providers implement the `Provider` interface in `shipcore/providers/base.py`, so personality, voice, intelligence provider, and skills stay separate and the captain's journey survives provider changes.
+
+## Conversation, weather, and the AI brain
+
+The HUD answers in the voice of the selected crew member (all 20 from the README, with their sigils, roles, and personalities from `shipcore/crew.json`, mirrored to `site/assets/crew.json`).
+
+- **Always on (no network):** persona smalltalk (greetings, how are you, thanks, goodbye, encouragement, who are you), math, time, status, notes, missions, jokes, and crew switching ("talk to Pluto")
+- **Web lookups (no key, logged, switchable with `web off`):** weather from Open-Meteo and facts from Wikipedia. Each request appears in the system log. Public rate limits apply per network
+- **AI brain (opt-in, no key):** "enable brain" downloads a small open model (Qwen2.5-0.5B-Instruct, Apache-2.0, about 400 MB) once, caches it, and runs it in the browser (WebGPU when available, otherwise CPU) for open conversation in the crew member's personality. The library loads from cdn.jsdelivr.net (pinned version) and weights from huggingface.co. Small models are limited: they chat, they do not know live facts
+- **With ShipCore:** unmatched messages go to ShipCore, which uses Ollama (if running) with the crew member's persona as its system prompt
 
 ## Security stance
 
