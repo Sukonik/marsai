@@ -4,7 +4,7 @@
 
 # 🪐 MARSAI
 
-[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.1.5**
+[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.1.6**
 
 ## ONE GALAXY. INFINITE STORIES.
 
@@ -357,6 +357,7 @@ Development handoffs:
 
 Each merged pull request is a version, logged in [issue #4](https://github.com/Sukonik/marsai/issues/4) and [CHANGELOG.md](CHANGELOG.md).
 
+- [v0.1.6](https://github.com/Sukonik/marsai/pull/11): power on HUD from the home screen, full-screen mode
 - [v0.1.5](https://github.com/Sukonik/marsai/pull/10): self-hosted fonts and HUD references
 - [v0.1.4](https://github.com/Sukonik/marsai/pull/9): Orbitron and Quantico typography
 - [v0.1.3](https://github.com/Sukonik/marsai/pull/8): clean sweep of stale notes

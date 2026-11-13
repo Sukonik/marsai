@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MARSAI | One Galaxy. Infinite Stories.</title>
 <meta name="description" content="MARSAI is a browser-first personal AI companion presented as an original starship and life-progression RPG.">
-<meta name="theme-color" content="#14100f">
+<meta name="theme-color" content="#080B10">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/marsai-mark-32.png">
 <link rel="apple-touch-icon" href="assets/marsai-mark-180.png">
@@ -13,63 +13,158 @@
 <meta property="og:title" content="MARSAI">
 <meta property="og:description" content="One galaxy. Infinite stories.">
 <meta property="og:image" content="assets/marsai-mark-512.png">
-<style>
-@font-face{font-family:"Orbitron";src:url(assets/fonts/orbitron-var.woff2) format("woff2");font-weight:400 900;font-style:normal;font-display:swap}
-@font-face{font-family:"Quantico";src:url(assets/fonts/quantico-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Quantico";src:url(assets/fonts/quantico-700.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap}
-:root{--bg:#14100f;--panel:#1d1816;--line:#3a2e2a;--text:#e9e1dc;--muted:#a79a93;--accent:#dc5336;--gold:#d6963c;--font-display:"Orbitron",system-ui,sans-serif;--font-panel:"Quantico",system-ui,sans-serif}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;display:flex;flex-direction:column}
-a{color:var(--gold)}
-a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-.strip{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:.65rem;color:var(--text);text-decoration:none}
-.brand-mark{height:38px;width:38px}
-.brand-wordmark{font-family:var(--font-display);font-size:1.15rem;font-weight:800;letter-spacing:.18em;white-space:nowrap}
-.strip .status{margin-left:auto;white-space:nowrap;color:var(--muted);font-family:var(--font-display);font-size:.75rem;font-weight:600;letter-spacing:.12em}
-main{flex:1;display:grid;gap:1rem;padding:1rem;max-width:1100px;width:100%;margin:0 auto;grid-template-columns:1fr}
-.hero{text-align:center;padding:2.5rem 1rem;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
-.hero img{width:min(220px,50vw);height:auto}
-h1{margin:.5rem 0 0;font-family:var(--font-display);font-weight:900;letter-spacing:.18em;font-size:clamp(1.8rem,6vw,3.4rem)}
-.tag{color:var(--gold);font-family:var(--font-display);font-weight:700;letter-spacing:.16em;font-size:.85rem}
-.hero p{max-width:60ch;margin:1rem auto 0;color:var(--muted)}
-.hero .system-prompt{font-family:var(--font-panel);font-size:clamp(1.1rem,2.4vw,1.35rem);font-weight:700;letter-spacing:.04em;color:var(--text)}
-.modules{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-.mod{border:1px solid var(--line);border-radius:10px;padding:1rem;background:var(--panel)}
-.mod h2{margin:0 0 .35rem;font-family:var(--font-panel);font-size:1.15rem;font-weight:700;letter-spacing:.08em;color:var(--accent)}
-.mod p{margin:0;color:var(--muted);font-size:.9rem}
-footer{padding:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;text-align:center}
-@media (max-width:440px){.strip .status{font-size:.58rem;letter-spacing:.06em}.brand-wordmark{font-size:1rem;letter-spacing:.12em}}
-@media (prefers-reduced-motion:no-preference){.hero img{transition:transform .4s}.hero img:hover{transform:rotate(-4deg) scale(1.03)}}
-</style>
+<link rel="stylesheet" href="assets/app.css">
+<script src="assets/app.js" defer></script>
 </head>
 <body>
-<header class="strip">
-  <a class="brand" href="./" aria-label="MARSAI home">
-    <img class="brand-mark" src="assets/marsai-emblem-color.svg" alt="" width="38" height="38">
-    <span class="brand-wordmark">MARS AI</span>
-  </a>
-  <span class="status">ORBITAL COMPANION OS</span>
-</header>
-<main>
-  <section class="hero">
-    <img src="assets/marsai-emblem-color.svg" alt="MARSAI emblem" width="220" height="220">
-    <h1>MARS AI</h1>
-    <div class="tag">ONE GALAXY. INFINITE STORIES.</div>
-    <p>A browser-first personal AI companion presented as an original starship and life-progression RPG. Your life. Your ship. Your universe.</p>
-    <p class="system-prompt">BRIDGE SHELL ONLINE // FULL ORBITAL HUD IN DEVELOPMENT</p>
-  </section>
-  <nav class="modules" aria-label="Modules">
-    <div class="mod"><h2>BRIDGE</h2><p>Command overview. Coming soon.</p></div>
-    <div class="mod"><h2>CREW</h2><p>Celestial personalities. Coming soon.</p></div>
-    <div class="mod"><h2>MISSIONS</h2><p>Goals become missions. Coming soon.</p></div>
-    <div class="mod"><h2>SHIPCORE</h2><p>One system, many voices. Coming soon.</p></div>
-  </nav>
-</main>
-<footer>
-  <a href="https://github.com/Sukonik/marsai">GitHub</a> ·
-  <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.1.5
-</footer>
+<a class="skip" href="#main">Skip to content</a>
+
+<div id="site">
+  <header class="strip">
+    <a class="brand" href="./" aria-label="MARSAI home">
+      <img class="brand-mark" src="assets/marsai-emblem-color.svg" alt="" width="38" height="38">
+      <span class="brand-wordmark">MARS AI</span>
+    </a>
+    <nav class="tabs" aria-label="Website sections">
+      <div role="tablist" aria-label="Website sections">
+        <button role="tab" id="tab-home" aria-controls="panel-home" aria-selected="true">Home</button>
+        <button role="tab" id="tab-crew" aria-controls="panel-crew" aria-selected="false" tabindex="-1">Crew</button>
+        <button role="tab" id="tab-missions" aria-controls="panel-missions" aria-selected="false" tabindex="-1">Missions</button>
+        <button role="tab" id="tab-shipcore" aria-controls="panel-shipcore" aria-selected="false" tabindex="-1">ShipCore</button>
+        <button role="tab" id="tab-roadmap" aria-controls="panel-roadmap" aria-selected="false" tabindex="-1">Roadmap</button>
+      </div>
+    </nav>
+    <span class="status">ORBITAL COMPANION OS</span>
+  </header>
+
+  <main id="main">
+    <section id="panel-home" role="tabpanel" aria-labelledby="tab-home" class="hero">
+      <img src="assets/marsai-emblem-color.svg" alt="MARSAI emblem" width="200" height="200">
+      <h1>MARS AI</h1>
+      <div class="tag">ONE GALAXY. INFINITE STORIES.</div>
+      <p>A browser-first personal AI companion presented as an original starship and life-progression RPG. Your life. Your ship. Your universe.</p>
+      <button type="button" class="power" id="power-on" aria-label="Power on the MARSAI HUD">
+        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><path d="M12 3v9" /><path d="M6.4 6.6a8 8 0 1 0 11.2 0" /></svg>
+        <span>POWER ON</span>
+      </button>
+      <p class="hint">Opens the bridge HUD. Full screen is available once powered on.</p>
+    </section>
+
+    <section id="panel-crew" role="tabpanel" aria-labelledby="tab-crew" hidden>
+      <h2 class="panel-title">CREW</h2>
+      <p>A crew of distinct celestial personalities, each with a permanent sigil, voice, and role. One captain profile follows you across every conversation.</p>
+    </section>
+    <section id="panel-missions" role="tabpanel" aria-labelledby="tab-missions" hidden>
+      <h2 class="panel-title">MISSIONS</h2>
+      <p>Goals become missions. Accomplishments become experience. New habits, projects, and discoveries become part of the captain's continuing story.</p>
+    </section>
+    <section id="panel-shipcore" role="tabpanel" aria-labelledby="tab-shipcore" hidden>
+      <h2 class="panel-title">SHIPCORE</h2>
+      <p>One underlying system, many voices. ShipCore keeps personality, voice, intelligence provider, and capabilities separate so your journey survives provider changes.</p>
+    </section>
+    <section id="panel-roadmap" role="tabpanel" aria-labelledby="tab-roadmap" hidden>
+      <h2 class="panel-title">ROADMAP</h2>
+      <p>MARSAI is at the concept and first-prototype stage. The bridge HUD you can power on here is a local demo with no AI provider connected.</p>
+      <p><a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Read the version history</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <a href="https://github.com/Sukonik/marsai">GitHub</a> ·
+    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.1.6
+  </footer>
+</div>
+
+<div id="hud" role="dialog" aria-modal="true" aria-labelledby="hud-title" hidden>
+  <header class="hud-top">
+    <div class="hud-left">
+      <button type="button" class="hbtn only-small" id="drawer-toggle" aria-expanded="false" aria-controls="wing">SYSTEMS</button>
+      <span class="badge">CAPTAIN TIER: ROOKIE</span>
+      <span class="badge"><span class="dot" aria-hidden="true"></span> LOCAL DEMO</span>
+    </div>
+    <div class="hud-mid">
+      <img src="assets/marsai-emblem-color.svg" alt="" width="28" height="28">
+      <h2 id="hud-title" tabindex="-1">MARS AI</h2>
+      <span class="module-name" id="module-name">BRIDGE</span>
+      <span class="chrono mono" title="Local session time">SESSION <time id="chrono">00:00:00</time></span>
+    </div>
+    <div class="hud-right">
+      <button type="button" class="hbtn" id="glow-toggle" aria-pressed="true">GLOW: ON</button>
+      <button type="button" class="hbtn" id="fs-toggle" aria-pressed="false">FULL SCREEN</button>
+      <button type="button" class="hbtn power-off" id="power-off" aria-label="Power off the HUD and return home">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M12 3v9" /><path d="M6.4 6.6a8 8 0 1 0 11.2 0" /></svg>
+        <span>POWER OFF</span>
+      </button>
+    </div>
+  </header>
+
+  <aside class="wing" id="wing" aria-label="Systems">
+    <section class="card" aria-labelledby="h-trace">
+      <h3 id="h-trace">TRACE SYNC</h3>
+      <p class="mono small">Captain-to-crew context: preview</p>
+      <div class="meter" role="img" aria-label="Trace sync preview, 72 percent"><i style="width:72%"></i></div>
+    </section>
+    <section class="card" aria-labelledby="h-core">
+      <h3 id="h-core">CORE PULSE</h3>
+      <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="mono small">Idle. No provider connected.</p>
+    </section>
+    <section class="card" aria-labelledby="h-nodes">
+      <h3 id="h-nodes">SUBSYSTEM NODES</h3>
+      <ul class="nodes mono small">
+        <li><span>Local demo</span><b>ONLINE</b></li>
+        <li><span>Voice</span><b>UNAVAILABLE</b></li>
+        <li><span>Storage</span><b>PREVIEW</b></li>
+        <li><span>Network</span><b>NOT USED</b></li>
+      </ul>
+    </section>
+    <nav class="card" aria-labelledby="h-nav">
+      <h3 id="h-nav">NAVIGATION</h3>
+      <ul class="navlist" id="navlist"></ul>
+    </nav>
+  </aside>
+
+  <main class="matrix" id="matrix" aria-labelledby="module-title">
+    <svg class="rings" viewBox="0 0 400 400" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice">
+      <defs><pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0H0V25" fill="none" stroke="currentColor" stroke-width=".4"/></pattern></defs>
+      <rect width="400" height="400" fill="url(#grid)" opacity=".25"/>
+      <circle cx="200" cy="200" r="190" class="r1"/>
+      <circle cx="200" cy="200" r="140" class="r2"/>
+      <circle cx="200" cy="200" r="90" class="r3"/>
+    </svg>
+    <i class="br tl" aria-hidden="true"></i><i class="br tr" aria-hidden="true"></i><i class="br bl" aria-hidden="true"></i><i class="br brr" aria-hidden="true"></i>
+    <div class="focal">
+      <p class="mono small" id="module-kicker">MODULE 01</p>
+      <h3 id="module-title" class="panel-hud-title">BRIDGE</h3>
+      <p id="module-desc"></p>
+    </div>
+  </main>
+
+  <aside class="rack" aria-label="Chamber rack">
+    <ul id="rack"></ul>
+  </aside>
+
+  <footer class="console">
+    <form id="console-form" autocomplete="off">
+      <label for="cmd" class="mono small">COMMAND <span class="badge">LOCAL DEMO</span></label>
+      <div class="row">
+        <input id="cmd" class="mono" type="text" placeholder="Type help" enterkeyhint="send" autocapitalize="off" spellcheck="false">
+        <button type="submit" class="hbtn primary">SEND</button>
+        <button type="button" class="hbtn" id="clear">CLEAR</button>
+      </div>
+    </form>
+    <div class="console-meta mono small">
+      <span>ACTIVE CREW: <b id="crew">MARS</b></span>
+      <span>VOICE: UNAVAILABLE</span>
+      <span class="kbd-hint">Esc: power off</span>
+    </div>
+    <details class="log">
+      <summary class="mono small">SYSTEM LOG</summary>
+      <ol id="log" class="mono small"></ol>
+    </details>
+  </footer>
+</div>
+
+<div id="sr" class="sr" role="status" aria-live="polite"></div>
 </body>
 </html>

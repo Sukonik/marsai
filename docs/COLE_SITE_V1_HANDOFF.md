@@ -199,6 +199,16 @@ Contains:
 
 V1 uses deterministic local responses and navigation actions. The console must clearly show **LOCAL DEMO** until a real provider is added.
 
+## ⏻ Power on / power off and full screen
+
+The website keeps its menu with tabs. The **home screen** carries a **POWER ON** button that opens the full HUD v1 shell; **POWER OFF** (or Escape) returns to the home screen.
+
+- Powering on moves focus into the HUD, makes the website inert, and locks page scroll
+- The HUD offers a **Full screen** toggle (Fullscreen API) that is hidden where unsupported; powering off exits full screen
+- `#hud` deep-links straight to the powered-on HUD (never auto-enters full screen, which needs a user gesture)
+- Boot animation is a short fade and is removed under reduced motion; no sound by default
+- The current shell in [`site/`](../site/) implements the five zones with a local-demo console; Cole replaces the placeholders module by module
+
 ## 🗺️ Site modules
 
 Use one React application with a persistent bridge shell. Hash routing is acceptable for GitHub Pages and avoids server rewrite problems.
