@@ -58,11 +58,27 @@
   function me() { return crewObj(crewId); }
   function label(c) { c = c || me(); return c.sigil + ' ' + c.name; }
   function fill(s) { return s.replace(/\{c\}/g, captain || 'Captain').replace(/Captain Captain/g, 'Captain'); }
-  function line(key) { var a = me().lines[key] || []; return fill(a[Math.floor(Math.random() * a.length)] || ''); }
+  var lastLine = {};
+  function line(key) {
+    var a = me().lines[key] || [], k = crewId + key, i = Math.floor(Math.random() * a.length);
+    if (a.length > 1 && i === lastLine[k]) i = (i + 1) % a.length;     // never repeat the same line twice in a row
+    lastLine[k] = i;
+    return fill(a[i] || '');
+  }
   function findCrew(word) {
     word = word.toLowerCase();
     for (var i = 0; i < CREW.length; i++) if (CREW[i].name.toLowerCase() === word) return CREW[i];
     return null;
+  }
+
+  function renderTrace() {
+    var el = $('#trace'); if (!el) return;
+    var eng = link.online ? (link.llm ? 'SHIPCORE+AI' : 'SHIPCORE') : (window.MarsBrain && MarsBrain.state() === 'ready' ? 'CORE+BRAIN' : 'CORE');
+    el.innerHTML = '';
+    [[me().name.toUpperCase()], [modules[current][0].toUpperCase()], [eng]].forEach(function (x, i) {
+      if (i) el.appendChild(document.createTextNode(' \u00bb '));
+      var b = document.createElement('b'); b.textContent = x[0]; el.appendChild(b);
+    });
   }
 
   /* ---------- Conversation ---------- */
@@ -113,7 +129,7 @@
     $('#module-kicker').textContent = 'MODULE 0' + (i + 1);
     $('#module-desc').textContent = modules[i][1];
     $$('button', navlist).forEach(function (b, j) { if (j === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
-    renderExtra();
+    renderExtra(); renderTrace();
     if (announce) { say(name + ' module active'); log('Module: ' + name); }
   }
   function findModule(word) {
@@ -146,6 +162,8 @@
     crewId = id;
     var c = me();
     $('#crew').textContent = label(c) + ' (' + c.role + ')';
+    $('#crew-sigil').textContent = c.sigil; $('#crew-name').textContent = c.name; $('#crew-role').textContent = c.role;
+    $('#crew-persona').textContent = c.persona; renderTrace();
     $$('.roster button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('aria-label').indexOf('Talk to ' + c.name + ',') === 0); });
     if (window.MarsVoice) MarsVoice.refreshVoices();
     log('Active crew: ' + label(c));
@@ -352,6 +370,7 @@
     $('#link-text').textContent = t; $('#link-text2').textContent = t;
     $('#node-net').textContent = link.online ? 'CONNECTED' : 'OFFLINE';
     $('#node-core').textContent = link.online ? 'HANDED OFF' : 'ONLINE';
+    renderTrace(); updateBoot();
   }
   function setLink(online, info) {
     link.online = online;
@@ -497,7 +516,7 @@
   function syncFs() {
     var on = !!fsEl();
     fsBtn.setAttribute('aria-pressed', on);
-    fsBtn.textContent = on ? 'EXIT FULL SCREEN' : 'FULL SCREEN';
+    fsBtn.textContent = on ? 'EXIT' : 'FULL';
     if (hud.hidden) return;
     say(on ? 'Full screen on' : 'Full screen off');
   }
@@ -510,6 +529,8 @@
   function tick() {
     var s = Math.floor((Date.now() - startedAt) / 1000);
     $('#chrono').textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60);
+    var n = new Date(), doy = Math.floor((n - new Date(n.getFullYear(), 0, 0)) / 86400000);
+    $('#stardate').textContent = ('00' + doy).slice(-3);
   }
   function startClock() { stopClock(); tick(); timer = setInterval(tick, 1000); }
   function stopClock() { if (timer) { clearInterval(timer); timer = null; } }
@@ -519,6 +540,21 @@
   });
 
 
+
+  function updateBoot() {
+    var l = $('#boot-link'); if (!l) return;
+    l.textContent = link.online ? (link.llm ? 'CONNECTED + LOCAL AI' : 'CONNECTED') : 'ONBOARD CORE';
+    $('#boot-crew').textContent = CREW.length + '/' + CREW.length;
+    var v = $('#voice-state'); $('#boot-voice').textContent = v && v.textContent === 'READY' ? 'READY' : 'TEXT ONLY';
+  }
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Settings dialog ---------- */
+  var dlg = $('#settings');
+  $('#settings-btn').addEventListener('click', function () { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); });
+  $('#settings-close').addEventListener('click', function () { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg && dlg.close) dlg.close(); });
+  $('#connect-btn').addEventListener('click', function () { checkLink(true); });
 
   /* ---------- Power ---------- */
   function power(on, from) {
@@ -536,11 +572,12 @@
       say('HUD powered on.');
       log('Power on.');
       checkLink(false);
-      if (!convo.children.length) setTimeout(function () { reply(line('greet'), 'greeting'); }, 350);
+      updateBoot();
+      if (!convo.children.length) setTimeout(function () { reply(line('greet'), 'greeting'); }, reduced ? 350 : 2300);
       if (lsGet('marsai.brain') === '1' && window.MarsBrain && MarsBrain.state() === 'off') MarsBrain.enable();
     } else {
       if (fsEl()) { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {} }
-      stopClock(); closeDrawer(); if (window.MarsVoice) MarsVoice.stop();
+      stopClock(); closeDrawer(); if (window.MarsVoice) MarsVoice.stop(); if (dlg.open && dlg.close) dlg.close();
       hud.hidden = true;
       site.inert = false;
       document.body.classList.remove('hud-on');
@@ -552,7 +589,7 @@
   powerOn.addEventListener('click', function () { power(true, powerOn); });
   powerOff.addEventListener('click', function () { power(false); });
   document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape' || hud.hidden) return;
+    if (e.key !== 'Escape' || hud.hidden || dlg.open) return;
     if (hud.classList.contains('drawer-open')) { closeDrawer(); drawerBtn.focus(); return; }
     power(false);
   });
