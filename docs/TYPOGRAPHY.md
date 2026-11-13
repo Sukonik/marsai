@@ -69,7 +69,7 @@ No display family should replace readable body typography.
 
 ## Current implementation
 
-The bridge shell self-hosts Orbitron (variable, weights 400 to 900) and Quantico (400 and 700) as WOFF2 files in `site/assets/fonts/`, converted from the official Google Fonts sources (https://github.com/google/fonts). Fonts use `font-display: swap` with system fallbacks, and Orbitron is preloaded. No third-party font requests are made.
+The bridge shell self-hosts Orbitron (variable, weights 400 to 900) and Quantico (400 and 700), and a Latin subset of JetBrains Mono (variable) as WOFF2 files in `site/assets/fonts/`, converted from the official Google Fonts sources (https://github.com/google/fonts). Fonts use `font-display: swap` with system fallbacks, and Orbitron is preloaded. No third-party font requests are made.
 
 The official OFL license files sit beside the fonts and must stay with them.
 
@@ -77,6 +77,7 @@ CSS roles:
 
 - **--font-display:** Orbitron
 - **--font-panel:** Quantico
+- **--font-mono:** JetBrains Mono (telemetry, session clock, command input, log)
 - Body copy: system sans-serif
 
 If the font files fail, the interface must remain fully usable.
