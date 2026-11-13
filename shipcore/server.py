@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from . import __version__
+from . import crew as crew_mod
 from .core import ShipCore
 from .voice import MAX_AUDIO_BYTES, VoiceEngine
 
@@ -71,7 +72,12 @@ def create_app(core: ShipCore | None = None, voice: VoiceEngine | None = None) -
     @app.post("/chat")
     def chat(body: ChatIn):
         r = core.chat(body.message, body.crew)
-        return {"reply": r.text, "source": r.source, "speaker": body.crew.upper() if body.crew.upper() in ("MARS", "VENUS") else "MARS"}
+        c = crew_mod.get(body.crew)
+        return {"reply": r.text, "source": r.source, "speaker": c["id"], "label": crew_mod.label(c)}
+
+    @app.get("/crew")
+    def crew():
+        return crew_mod.load()
 
     @app.get("/voice/status")
     def voice_status():

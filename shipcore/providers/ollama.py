@@ -15,9 +15,11 @@ from .base import Reply
 
 MAX_REPLY = 2000
 SYSTEM = (
-    "You are {crew}, a crew member aboard the captain's starship in an original "
-    "life-progression game called MARSAI. Be concise, helpful, and in character. "
-    "Never claim to run commands or access files."
+    "You are {name}, the {role} aboard the captain's starship in an original "
+    "life-progression game called MARSAI. Personality: {persona} "
+    "Stay in character, speak naturally in one to three short sentences, and be genuinely helpful. "
+    "You are an AI crew personality; never claim to run commands, access files, or know live data "
+    "such as today's weather."
 )
 
 
@@ -42,11 +44,15 @@ class OllamaProvider:
         return self._ok
 
     def reply(self, message: str, crew: str) -> Reply:
+        from .. import crew as crew_mod
+
+        c = crew_mod.get(crew)
+        system = SYSTEM.format(name=c["name"], role=c["role"], persona=c["persona"])
         body = json.dumps({
             "model": self.model,
             "stream": False,
             "messages": [
-                {"role": "system", "content": SYSTEM.format(crew=crew.title())},
+                {"role": "system", "content": system},
                 {"role": "user", "content": message},
             ],
         }).encode()

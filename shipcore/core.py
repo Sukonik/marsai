@@ -1,11 +1,11 @@
 """ShipCore router: skills first, then optional local language providers."""
 from __future__ import annotations
 
+from . import crew as crew_mod
 from .providers import OllamaProvider, Provider, Reply
 from .skills import SKILLS, run_skill
 from .storage import Store
 
-CREW = {"MARS", "VENUS"}
 FALLBACK = (
     "ShipCore has no language model connected, so I only know my built-in skills. "
     "Type help. To enable open conversation, run a local model with Ollama (no key needed)."
@@ -18,7 +18,7 @@ class ShipCore:
         self.providers = providers if providers is not None else [OllamaProvider()]
 
     def chat(self, message: str, crew: str = "MARS") -> Reply:
-        crew = crew.upper() if crew.upper() in CREW else "MARS"
+        crew = crew_mod.get(crew)["id"]
         hit = run_skill(message, self.store)
         if hit:
             return Reply(hit[1], f"skill:{hit[0]}")

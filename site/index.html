@@ -14,7 +14,9 @@
 <meta property="og:description" content="One galaxy. Infinite stories.">
 <meta property="og:image" content="assets/marsai-mark-512.png">
 <link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/hud.css">
 <script src="assets/voice.js" defer></script>
+<script src="assets/brain.js" defer></script>
 <script src="assets/app.js" defer></script>
 </head>
 <body>
@@ -39,7 +41,8 @@
   </header>
 
   <main id="main">
-    <section id="panel-home" role="tabpanel" aria-labelledby="tab-home" class="hero">
+    <section id="panel-home" role="tabpanel" aria-labelledby="tab-home" class="hero cut">
+      <div class="era" aria-hidden="true"><span>1996</span><i></i><span>2026</span><i></i><b>2056</b></div>
       <img src="assets/marsai-emblem-color.svg" alt="MARSAI emblem" width="200" height="200">
       <h1>MARS AI</h1>
       <div class="tag">ONE GALAXY. INFINITE STORIES.</div>
@@ -72,110 +75,137 @@
 
   <footer>
     <a href="https://github.com/Sukonik/marsai">GitHub</a> ·
-    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.3.0
+    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.4.0
   </footer>
 </div>
 
 <div id="hud" role="dialog" aria-modal="true" aria-labelledby="hud-title" hidden>
-  <header class="hud-top">
-    <div class="hud-left">
-      <button type="button" class="hbtn only-small" id="drawer-toggle" aria-expanded="false" aria-controls="wing">SYSTEMS</button>
-      <span class="badge">CAPTAIN TIER: ROOKIE</span>
-      <span class="badge"><span class="dot" aria-hidden="true"></span> <span id="link-text">ONBOARD CORE</span></span>
-    </div>
-    <div class="hud-mid">
-      <img src="assets/marsai-emblem-color.svg" alt="" width="28" height="28">
+  <div class="fx" aria-hidden="true"></div>
+  <div id="boot" class="boot mono" aria-hidden="true">
+    <p>MARSAI // CHRONOFRAME 2056</p>
+    <p>SHIPCORE LINK ........ <b id="boot-link">STANDBY</b></p>
+    <p>CREW ROSTER ......... <b id="boot-crew">--/--</b></p>
+    <p>VOICE ............... <b id="boot-voice">--</b></p>
+    <p>BRIDGE .............. ONLINE</p>
+  </div>
+
+  <header class="top">
+    <button type="button" class="ibtn only-small" id="drawer-toggle" aria-expanded="false" aria-controls="wing" aria-label="Open crew panel">CREW</button>
+    <div class="brand">
+      <img src="assets/marsai-emblem-color.svg" alt="" width="30" height="30">
       <h2 id="hud-title" tabindex="-1">MARS AI</h2>
-      <span class="module-name" id="module-name">BRIDGE</span>
-      <span class="chrono mono" title="Local session time">SESSION <time id="chrono">00:00:00</time></span>
     </div>
-    <div class="hud-right">
-      <button type="button" class="hbtn" id="glow-toggle" aria-pressed="true">GLOW: ON</button>
-      <button type="button" class="hbtn" id="fs-toggle" aria-pressed="false">FULL SCREEN</button>
-      <button type="button" class="hbtn power-off" id="power-off" aria-label="Power off the HUD and return home">
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M12 3v9" /><path d="M6.4 6.6a8 8 0 1 0 11.2 0" /></svg>
-        <span>POWER OFF</span>
+    <nav class="hextabs" aria-label="Modules"><ul id="navlist"></ul></nav>
+    <div class="clock mono" title="In-world date and your local session time">
+      <span class="sd">2056.<b id="stardate">000</b></span>
+      <span class="sess">SESSION <time id="chrono">00:00:00</time></span>
+    </div>
+    <div class="ctl">
+      <span class="tag"><span class="dot" aria-hidden="true"></span><span id="link-text">ONBOARD CORE</span></span>
+      <button type="button" class="ibtn" id="fs-toggle" aria-pressed="false">FULL</button>
+      <button type="button" class="ibtn" id="settings-btn" aria-haspopup="dialog" aria-label="Open systems and settings">SYSTEMS</button>
+      <button type="button" class="ibtn off" id="power-off" aria-label="Power off the HUD and return home">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M12 3v9" /><path d="M6.4 6.6a8 8 0 1 0 11.2 0" /></svg>
+        <span>OFF</span>
       </button>
     </div>
   </header>
 
-  <aside class="wing" id="wing" aria-label="Systems">
-    <section class="card" aria-labelledby="h-trace">
-      <h3 id="h-trace">TRACE SYNC</h3>
-      <p class="mono small">Captain-to-crew context: preview</p>
-      <div class="meter" role="img" aria-label="Trace sync preview, 72 percent"><i style="width:72%"></i></div>
+  <aside class="wing" id="wing" aria-label="Active crew and systems">
+    <section class="crewcard cut" aria-labelledby="crew-name">
+      <p class="mono small k">ACTIVE CREW</p>
+      <div class="sigil" id="crew-sigil" aria-hidden="true">🔴</div>
+      <h3 id="crew-name">Mars</h3>
+      <p class="role" id="crew-role">Mediator</p>
+      <p class="persona" id="crew-persona"></p>
+      <b id="crew" hidden>🔴 Mars (Mediator)</b>
     </section>
-    <section class="card" aria-labelledby="h-core">
-      <h3 id="h-core">CORE PULSE</h3>
-      <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <p class="mono small">Idle. No provider connected.</p>
-    </section>
-    <section class="card" aria-labelledby="h-nodes">
-      <h3 id="h-nodes">SUBSYSTEM NODES</h3>
+    <section class="sysbox cut" aria-labelledby="h-nodes">
+      <h3 id="h-nodes" class="mono small k">SUBSYSTEMS</h3>
       <ul class="nodes mono small">
-        <li><span>Onboard core</span><b id="node-core">ONLINE</b></li>
+        <li><span>Core</span><b id="node-core">ONLINE</b></li>
         <li><span>Voice</span><b id="node-voice">UNAVAILABLE</b></li>
-        <li><span>Storage</span><b>PREVIEW</b></li>
-        <li><span>ShipCore link</span><b id="node-net">OFFLINE</b></li>
+        <li><span>ShipCore</span><b id="node-net">OFFLINE</b></li>
       </ul>
+      <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     </section>
-    <nav class="card" aria-labelledby="h-nav">
-      <h3 id="h-nav">NAVIGATION</h3>
-      <ul class="navlist" id="navlist"></ul>
-    </nav>
   </aside>
 
-  <main class="matrix" id="matrix" aria-labelledby="module-title">
+  <main class="center" id="matrix" aria-labelledby="module-title">
     <svg class="rings" viewBox="0 0 400 400" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice">
-      <defs><pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0H0V25" fill="none" stroke="currentColor" stroke-width=".4"/></pattern></defs>
-      <rect width="400" height="400" fill="url(#grid)" opacity=".25"/>
-      <circle cx="200" cy="200" r="190" class="r1"/>
-      <circle cx="200" cy="200" r="140" class="r2"/>
-      <circle cx="200" cy="200" r="90" class="r3"/>
+      <circle cx="200" cy="200" r="190" class="r1"/><circle cx="200" cy="200" r="140" class="r2"/><circle cx="200" cy="200" r="90" class="r3"/>
+      <path d="M200 0V400M0 200H400" class="cross"/>
     </svg>
-    <i class="br tl" aria-hidden="true"></i><i class="br tr" aria-hidden="true"></i><i class="br bl" aria-hidden="true"></i><i class="br brr" aria-hidden="true"></i>
-    <div class="focal">
-      <p class="mono small" id="module-kicker">MODULE 01</p>
-      <h3 id="module-title" class="panel-hud-title">BRIDGE</h3>
-      <p id="module-desc"></p>
-    </div>
+    <section class="module cut" aria-label="Module">
+      <div class="stripe" aria-hidden="true"></div>
+      <div class="mhead">
+        <span class="tag hot" id="module-kicker">MODULE 01</span>
+        <h3 id="module-title" class="mtitle">BRIDGE</h3>
+        <span class="trace mono small" id="trace" aria-label="Current route"></span>
+      </div>
+      <span id="module-name" hidden>BRIDGE</span>
+      <p id="module-desc" class="mdesc"></p>
+      <div id="module-extra" class="module-extra"></div>
+    </section>
+    <section class="channel cut" aria-label="Conversation">
+      <div id="convo" class="convo" role="log" aria-live="polite" aria-label="Conversation"></div>
+    </section>
   </main>
 
-  <aside class="rack" aria-label="Chamber rack">
+  <aside class="rack" aria-label="Quick actions">
     <ul id="rack"></ul>
   </aside>
 
-  <footer class="console">
+  <footer class="foot">
     <form id="console-form" autocomplete="off">
-      <label for="cmd" class="mono small">COMMAND <span class="badge" id="link-text2">ONBOARD CORE</span></label>
-      <div class="row">
-        <input id="cmd" class="mono" type="text" placeholder="Type help" enterkeyhint="send" autocapitalize="off" spellcheck="false">
-        <button type="button" class="hbtn" id="mic" aria-pressed="false" hidden title="Talk to the ship. Uses local ShipCore Whisper when running, otherwise your browser speech service.">MIC</button>
-        <button type="submit" class="hbtn primary">SEND</button>
-        <button type="button" class="hbtn" id="clear">CLEAR</button>
+      <label for="cmd" class="sr">Message your crew</label>
+      <div class="row cut">
+        <input id="cmd" class="mono" type="text" placeholder="Say hello, ask the weather, or type help" enterkeyhint="send" autocapitalize="off" spellcheck="false">
+        <button type="button" class="ibtn mic" id="mic" aria-pressed="false" hidden title="Talk to the ship. Uses local ShipCore Whisper when running, otherwise your browser speech service.">MIC</button>
+        <button type="submit" class="ibtn go">SEND</button>
       </div>
     </form>
-    <div class="console-meta mono small">
-      <span>ACTIVE CREW: <b id="crew">MARS</b></span>
-      <span>VOICE: <b id="voice-state">UNAVAILABLE</b></span>
-      <button type="button" class="hbtn mini" id="speak-toggle" aria-pressed="false" hidden>SPEAK REPLIES: OFF</button>
-      <span class="kbd-hint">Esc: power off</span>
-    </div>
     <p id="voice-status" class="mono small" role="status" aria-live="polite"></p>
-    <details class="log" id="voice-settings" hidden>
-      <summary class="mono small">VOICE SETTINGS</summary>
-      <div class="vset">
-        <span class="mono small" id="voice-engine"></span>
-        <label class="mono small">Voice <select id="voice-select"></select></label>
-        <label class="mono small">Speed <input id="voice-rate" type="range" min="0.7" max="1.3" step="0.05" value="1"></label>
-        <button type="button" class="hbtn mini" id="voice-test">TEST VOICE</button>
-      </div>
-    </details>
-    <details class="log">
-      <summary class="mono small">SYSTEM LOG</summary>
-      <ol id="log" class="mono small"></ol>
-    </details>
   </footer>
+
+  <dialog id="settings" aria-labelledby="settings-title">
+    <div class="sheet cut">
+      <header class="shead">
+        <h3 id="settings-title">SYSTEMS</h3>
+        <button type="button" class="ibtn" id="settings-close" aria-label="Close systems">CLOSE</button>
+      </header>
+      <section aria-labelledby="s-conv">
+        <h4 id="s-conv" class="mono small k">CONVERSATION</h4>
+        <div class="srow"><button type="button" class="hbtn" id="brain-btn" aria-pressed="false" title="Open conversation with a small AI model that runs in this browser (downloads about 400 MB once)">AI BRAIN: OFF</button>
+          <span class="mono small">A small open AI that runs in your browser. No key.</span></div>
+        <div class="srow"><button type="button" class="hbtn" id="web-btn" aria-pressed="true" title="Weather and Wikipedia lookups (no key). Every request is logged.">WEB LOOKUPS: ON</button>
+          <span class="mono small">Weather and Wikipedia. Requests are logged below.</span></div>
+        <div class="srow"><button type="button" class="hbtn" id="connect-btn">CONNECT SHIPCORE</button>
+          <span class="mono small">Local engine for voice and open conversation. <b id="link-text2">ONBOARD CORE</b></span></div>
+      </section>
+      <section id="voice-settings" aria-labelledby="s-voice" hidden>
+        <h4 id="s-voice" class="mono small k">VOICE <span id="voice-state" class="mono">UNAVAILABLE</span></h4>
+        <div class="srow"><button type="button" class="hbtn" id="speak-toggle" aria-pressed="false" hidden>SPEAK REPLIES: OFF</button></div>
+        <p class="mono small" id="voice-engine"></p>
+        <p class="mono small" id="voice-crew"></p>
+        <div class="vset">
+          <label class="mono small">Voice <select id="voice-select"></select></label>
+          <label class="mono small">Speed <input id="voice-rate" type="range" min="0.7" max="1.3" step="0.05" value="1"></label>
+          <button type="button" class="hbtn" id="voice-test">TEST VOICE</button>
+        </div>
+        <div class="phrases" id="phrases" aria-label="Recorded phrases"></div>
+      </section>
+      <section aria-labelledby="s-disp">
+        <h4 id="s-disp" class="mono small k">DISPLAY</h4>
+        <div class="srow"><button type="button" class="hbtn" id="glow-toggle" aria-pressed="true">GLOW: ON</button>
+          <button type="button" class="hbtn" id="clear">CLEAR CONVERSATION</button></div>
+      </section>
+      <section aria-labelledby="s-log">
+        <h4 id="s-log" class="mono small k">SYSTEM LOG</h4>
+        <ol id="log" class="mono small"></ol>
+      </section>
+    </div>
+  </dialog>
 </div>
 
 <div id="sr" class="sr" role="status" aria-live="polite"></div>

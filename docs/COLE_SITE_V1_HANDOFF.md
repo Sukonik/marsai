@@ -89,6 +89,10 @@ The interface should feel engineered, not decorated.
 
 Do not apply glow to body text. Glow is reserved for active controls, signal traces, and focus states.
 
+## 🕰️ Art direction update: Chronoframe
+
+The HUD's look is now defined in [HUD_ART_DIRECTION.md](HUD_ART_DIRECTION.md): 90s anime-era HUD language modernized across 1996, 2026, and 2056, with a decluttered layout (conversation as the hero, controls in a Systems panel). Where it conflicts with older visual notes in this handoff, the art direction document wins. The original-IP rules below still apply: mood references only, no franchise names, marks, layouts, or assets.
+
 ## 🪐 Primary identity
 
 ### Official logo system (provided)

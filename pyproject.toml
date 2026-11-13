@@ -17,5 +17,8 @@ marsai-shipcore = "shipcore.__main__:main"
 [tool.setuptools]
 packages = ["shipcore", "shipcore.providers"]
 
+[tool.setuptools.package-data]
+shipcore = ["crew.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
