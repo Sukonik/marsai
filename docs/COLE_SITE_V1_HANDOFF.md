@@ -91,6 +91,10 @@ Do not apply glow to body text. Glow is reserved for active controls, signal tra
 
 ## 🪐 Primary identity
 
+### Official logo mark (provided)
+
+The official MARSAI mark is in [`assets/brand/`](../assets/brand/) (PNG, WebP, app-icon sizes, `favicon.ico`). Use it as the default logo and favicon in Site V1. A wordmark, lockups, SVG master, and zip are coming; build the header and favicon slots so they can be swapped in without layout changes.
+
 ### Standard logo
 
 Create an original SVG logo with:

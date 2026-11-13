@@ -1,4 +1,10 @@
+<p align="center">
+  <img src="assets/brand/marsai-mark-512.png" alt="MARSAI logo: a red planet with a gold orbital ring inside a shield" width="160">
+</p>
+
 # 🪐 MARSAI
+
+[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.1.0**
 
 ## ONE GALAXY. INFINITE STORIES.
 
@@ -342,6 +348,15 @@ Development handoffs:
 
 - [Core application build handoff](docs/BUILD_HANDOFF.md)
 - [Site V1 development handoff for Cole](docs/COLE_SITE_V1_HANDOFF.md)
+
+## 🏷️ Versions
+
+Each merged pull request is a version, logged in [issue #4](https://github.com/Sukonik/marsai/issues/4) and [CHANGELOG.md](CHANGELOG.md).
+
+- [v0.1.0](https://github.com/Sukonik/marsai/pull/5): logo and brand assets
+- [v0.0.3](https://github.com/Sukonik/marsai/pull/3): Site V1 handoff
+- [v0.0.2](https://github.com/Sukonik/marsai/pull/2): crew sigils
+- [v0.0.1](https://github.com/Sukonik/marsai/pull/1): universe and prototype plan
 
 ## 🌠 Creative identity
 
