@@ -4,6 +4,8 @@
 
 # 🪐 MARSAI
 
+[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.1.0**
+
 ## ONE GALAXY. INFINITE STORIES.
 
 **MARSAI** is a browser-first personal AI companion presented as an original starship and life-progression RPG. You are the captain of an experimental vessel powered by ShipCore, guided by a crew of distinct celestial personalities, and supported by missions that connect the adventure to real life.
@@ -346,6 +348,15 @@ Development handoffs:
 
 - [Core application build handoff](docs/BUILD_HANDOFF.md)
 - [Site V1 development handoff for Cole](docs/COLE_SITE_V1_HANDOFF.md)
+
+## 🏷️ Versions
+
+Each merged pull request is a version, logged in [issue #4](https://github.com/Sukonik/marsai/issues/4) and [CHANGELOG.md](CHANGELOG.md).
+
+- [v0.1.0](https://github.com/Sukonik/marsai/pull/5): logo and brand assets
+- [v0.0.3](https://github.com/Sukonik/marsai/pull/3): Site V1 handoff
+- [v0.0.2](https://github.com/Sukonik/marsai/pull/2): crew sigils
+- [v0.0.1](https://github.com/Sukonik/marsai/pull/1): universe and prototype plan
 
 ## 🌠 Creative identity
 
