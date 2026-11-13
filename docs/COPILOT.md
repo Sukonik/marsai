@@ -18,6 +18,10 @@ It is a small dependency-free engine (`site/assets/copilot.js`, about 10 KB). It
 | Weather | "do I need an umbrella in Seattle", "will it rain tomorrow in London", "is it cold outside", "weather here" |
 | Facts | "who is Ada Lovelace", "tell me about black holes", "what does serendipity mean", "how tall is Mount Everest" |
 | Quick answers | "what time is it", "what day is it", "what is 15 percent of 80", "twenty five plus thirty", "2 to the power of 10" |
+| Look things up | "price of SCHD", "how is Apple stock doing", "any AI news", "news about OpenAI", "what is hallucination" (see [INTEGRATIONS.md](INTEGRATIONS.md)) |
+| Take phone messages | "take a message: Phil Gordon 516-787-9090 SWA Development wants to speak to law staff, urgent", "show my messages" |
+| Themes and apps | "change the theme to Solar Forge", "next theme", "what themes do you have", "open payout lab", "open the weather app" |
+| Chat | "tell me a joke", "another one", "fun fact", "give me a riddle", "I'm bored", "should I take the job", "what should I eat", "flip a coin" |
 | Control the HUD | "turn on the voice", "stop talking", "start listening", "go full screen", "open the settings", "clear the chat", "enable the AI brain", "turn off web lookups", "that is all" |
 
 Plain conversation ("hello, how are you?", "I feel stressed", "thanks") still gets an in-character reply, and anything the copilot does not recognize goes to the crew member's conversation layer (ShipCore with a local model, or the in-browser AI brain if enabled).

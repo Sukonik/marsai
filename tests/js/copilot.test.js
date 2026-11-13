@@ -5,7 +5,8 @@ const path = require('node:path');
 const fs = require('node:fs');
 const Copilot = require('../../site/assets/copilot.js');
 const crew = JSON.parse(fs.readFileSync(path.join(__dirname, '../../site/assets/crew.json'), 'utf8')).crew;
-const ctx = { crew, missions: [{ id: 1, title: 'learn to bake bread', done: false }, { id: 2, title: 'call mom', done: false }, { id: 3, title: 'file taxes', done: true }] };
+const THEMES = [{id:'ares',name:'Ares Prime'},{id:'lunar',name:'Lunar Alloy'},{id:'forge',name:'Solar Forge'},{id:'helios',name:'Helios Signal'},{id:'europa',name:'Europa Crown'},{id:'orbital',name:'Orbital Command'},{id:'nebula',name:'Nebula Relay'},{id:'phobos',name:'Phobos Night'}];
+const ctx = { themes: THEMES, glossary: ['hallucination','agent','agi','api','context window'], crew, missions: [{ id: 1, title: 'learn to bake bread', done: false }, { id: 2, title: 'call mom', done: false }, { id: 3, title: 'file taxes', done: true }] };
 const a = (s) => Copilot.analyze(s, ctx);
 
 // [phrase, expected intent, expected fields]
@@ -104,6 +105,46 @@ const CASES = [
   ['shut down', 'power_off', {}],
   ["that's all", 'power_off', {}],
   ['what can you do', 'help', {}],
+  // themes
+  ['change the theme to Solar Forge', 'theme', { id: 'forge' }],
+  ['switch to nebula relay', 'theme', { id: 'nebula' }],
+  ['use the Phobos Night theme', 'theme', { id: 'phobos' }],
+  ['make it look like helios', 'theme', { id: 'helios' }],
+  ['Lunar Alloy', 'theme', { id: 'lunar' }],
+  ['next theme', 'theme', { next: true }],
+  ['can I get a different color scheme', 'theme', { next: true }],
+  ['previous theme', 'theme', { prev: true }],
+  ['random theme', 'theme', { random: true }],
+  ['what themes do you have', 'list_themes', {}],
+  // sibling apps
+  ['open the weather app', 'open_app', { app: 'clearsky' }],
+  ['launch payout lab', 'open_app', { app: 'payout' }],
+  ['take me to goldbrief', 'open_app', { app: 'goldbrief' }],
+  ['open wywo', 'open_app', { app: 'wywo' }],
+  // stocks
+  ['price of SCHD', 'stock', { query: 'SCHD' }],
+  ['what does VYM pay', 'stock', { query: 'VYM' }],
+  ['how is Apple stock doing', 'stock', { query: 'apple' }],
+  ['dividend yield of Coca Cola', 'stock', { query: 'coca cola' }],
+  ['is KO a good dividend stock', 'stock', { query: 'KO' }],
+  ['tell me about the schd etf', 'stock', {}],
+  // news
+  ['any AI news', 'news', { topic: '' }],
+  ['what is the latest news', 'news', {}],
+  ['news about OpenAI', 'news', { topic: 'openai' }],
+  ['catch me up on AI', 'news', {}],
+  ['show me the headlines', 'news', {}],
+  // glossary beats Wikipedia for AI terms
+  ['what is hallucination', 'glossary', {}],
+  ['what is a context window', 'glossary', {}],
+  // messages (WYWO)
+  ['take a message: Phil Gordon 516-787-9090 SWA Development wants to speak to law staff, urgent', 'message_add', {}],
+  ['message for Dana from Sam at the city clerk, call back 555-123-4567', 'message_add', {}],
+  ['Phil Gordon called 516-787-9090 about the retail sites', 'message_add', {}],
+  ['take a message', 'message_add', { text: '' }],
+  ['show my messages', 'message_list', {}],
+  ['who called', 'message_list', {}],
+  ['will it rain tomorrow in Paris, do I need an umbrella', 'weather', { ask: 'umbrella' }],
   ['yes', 'yes', {}],
   ['nope', 'no', {}],
 ];
@@ -118,7 +159,7 @@ for (const [phrase, intent, fields] of CASES) {
 }
 
 // plain conversation and look-alikes must NOT be grabbed as commands
-const NOT = ['hello! how are you?', 'I am serious about this', 'thank you so much', 'I feel stressed today', 'tell me a story about dragons', 'I love lunar eclipses',
+const NOT = ['I have good news', 'the stock room is messy', 'my favorite color scheme is blue', 'the news is boring today lol', 'what a lovely theme park','hello! how are you?', 'I am serious about this', 'thank you so much', 'I feel stressed today', 'tell me a story about dragons', 'I love lunar eclipses',
   'what should I do when I feel unmotivated', 'good night', 'my favorite planet is Mars bars', 'you are great', 'who are you', 'what is your name'];
 for (const phrase of NOT) {
   test(`"${phrase}" is not a command`, () => {

@@ -83,10 +83,30 @@
 
   /* ---------- Conversation ---------- */
   var convo = $('#convo'), logEl = $('#log');
-  function addMsg(kind, who, text) {
+  var URL_RE = /(https?:\/\/[^\s<>"')]+[^\s<>"').,;:!?])/g;
+  function safeUrl(u) { try { var x = new URL(u); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : null; } catch (e) { return null; } }
+  function prettyUrl(u) { try { var x = new URL(u), s = x.hostname.replace(/^www\./, '') + (x.pathname.length > 1 ? x.pathname.replace(/\/$/, '') : ''); return s.length > 46 ? s.slice(0, 45) + '...' : s; } catch (e) { return u; } }
+  function richText(el, text) {
+    var last = 0, m; URL_RE.lastIndex = 0;
+    while ((m = URL_RE.exec(text))) {
+      if (m.index > last) el.appendChild(document.createTextNode(text.slice(last, m.index)));
+      var a = document.createElement('a'); a.href = m[0]; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = prettyUrl(m[0]); el.appendChild(a);
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
+  }
+  function addMsg(kind, who, text, cards) {
     var d = document.createElement('div'); d.className = 'msg ' + kind;
     if (who) { var w = document.createElement('span'); w.className = 'who'; w.textContent = who; d.appendChild(w); }
-    var t = document.createElement('span'); t.className = 'txt'; t.textContent = text; d.appendChild(t);
+    var t = document.createElement('span'); t.className = 'txt'; richText(t, text); d.appendChild(t);
+    (cards || []).forEach(function (c) {
+      var card = document.createElement('div'), u = c.url && safeUrl(c.url); card.className = 'card';
+      var b = document.createElement('b');
+      if (u) { var a = document.createElement('a'); a.href = u; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = c.title; b.appendChild(a); } else b.textContent = c.title;
+      card.appendChild(b);
+      if (c.sub) { var s = document.createElement('small'); s.textContent = c.sub; card.appendChild(s); }
+      t.appendChild(card);
+    });
     convo.appendChild(d);
     while (convo.children.length > 40) convo.removeChild(convo.firstChild);
     convo.scrollTop = convo.scrollHeight;
@@ -98,8 +118,8 @@
     logEl.scrollTop = logEl.scrollHeight;
   }
   /* A reply from the active crew member. ev picks a recorded phrase (greeting, confirm, warning, celebrate) if one exists. */
-  function reply(text, ev) {
-    addMsg('crew', label(), text);
+  function reply(text, ev, cards) {
+    addMsg('crew', label(), text, cards);
     if (!window.MarsVoice) return;
     if (ev && MarsVoice.hasPhrase(ev)) MarsVoice.event(ev, text); else MarsVoice.speak(text);
   }
@@ -110,13 +130,13 @@
     ['Crew', 'Twenty celestial personalities, each with their own role, sigil, and voice. Pick one to talk to.'],
     ['Missions', 'Turn goals into missions and track progress as experience. Try: new mission learn to bake.'],
     ['ShipCore', 'One system, many voices. Personality, voice, provider, and skills stay separate.'],
-    ['Theme Lab', 'Eight low-glare palettes share one geometry. Theme switching arrives in a later build.'],
+    ['Theme Lab', 'Eight palettes share one layout. Pick one and it applies everywhere, and I will remember it on this device.'],
     ['Roadmap', 'Prototype phases from the first browser build toward portable .starship exports.']
   ];
   var navlist = $('#navlist');
   modules.forEach(function (m, i) {
     var li = document.createElement('li'), b = document.createElement('button');
-    b.type = 'button'; b.textContent = m[0].toUpperCase();
+    b.type = 'button'; b.className = 'key'; b.textContent = m[0].toUpperCase();
     b.addEventListener('click', function () { setModule(i, true); closeDrawer(); });
     li.appendChild(b); navlist.appendChild(li);
   });
@@ -137,9 +157,40 @@
     for (var i = 0; i < modules.length; i++) if (modules[i][0].replace(/\s+/g, '').toLowerCase() === word) return i;
     return -1;
   }
+  var THEMES = [
+    { id: 'ares', name: 'Ares Prime', c: ['#E65A3A', '#D99A3D', '#42CFE0'], bg: '#080B10' }, { id: 'lunar', name: 'Lunar Alloy', c: ['#C7D2DC', '#559FD1', '#55C985'], bg: '#08111B' },
+    { id: 'forge', name: 'Solar Forge', c: ['#E87532', '#D9B744', '#ED5572'], bg: '#100B08' }, { id: 'helios', name: 'Helios Signal', c: ['#DFAE3F', '#52BE91', '#E66060'], bg: '#0D0E0A' },
+    { id: 'europa', name: 'Europa Crown', c: ['#32C3D3', '#BE9D50', '#CE70A9'], bg: '#061116' }, { id: 'orbital', name: 'Orbital Command', c: ['#4B7FCA', '#B5C2D0', '#D89935'], bg: '#070D16' },
+    { id: 'nebula', name: 'Nebula Relay', c: ['#8E60CC', '#4DB88C', '#DC717B'], bg: '#0B0812' }, { id: 'phobos', name: 'Phobos Night', c: ['#76B4CC', '#7C8898', '#CFAE47'], bg: '#05080D' }
+  ];
+  var themeId = 'ares';
+  function themeById(id) { for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) return THEMES[i]; return null; }
+  function applyTheme(id, announce) {
+    var th = themeById(id) || THEMES[0]; themeId = th.id;
+    if (th.id === 'ares') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', th.id);
+    var meta = document.querySelector('meta[name=theme-color]'); if (meta) meta.setAttribute('content', th.bg);
+    lsSet('marsai.theme', th.id);
+    $$('.theme').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-id') === th.id); });
+    if (announce) { say('Theme ' + th.name); log('Theme: ' + th.name); }
+    return th;
+  }
+  function renderThemes(box) {
+    if (!box) return; box.textContent = '';
+    THEMES.forEach(function (th) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'theme'; b.setAttribute('data-id', th.id); b.setAttribute('aria-pressed', th.id === themeId);
+      b.setAttribute('aria-label', 'Theme ' + th.name);
+      var nm = document.createElement('b'); nm.textContent = th.name.toUpperCase(); b.appendChild(nm);
+      var chips = document.createElement('span'); chips.className = 'chips'; th.c.forEach(function (col) { var i = document.createElement('i'); i.style.background = col; chips.appendChild(i); }); b.appendChild(chips);
+      b.style.background = 'linear-gradient(135deg,' + th.bg + ',var(--edge))';
+      b.addEventListener('click', function () { var x = applyTheme(th.id, true); reply('Theme set to ' + x.name + '.'); });
+      box.appendChild(b);
+    });
+  }
+  function nextTheme(step) { var i = 0; for (var k = 0; k < THEMES.length; k++) if (THEMES[k].id === themeId) i = k; return THEMES[(i + step + THEMES.length) % THEMES.length]; }
   var GROUPS = [['foundational', 'FOUNDATIONAL COMPANIONS'], ['male', 'MALE CONSTELLATION'], ['female', 'FEMALE CONSTELLATION']];
   function renderExtra() {
     var box = $('#module-extra'); box.textContent = '';
+    if (current === 4) { var g = document.createElement('div'); g.className = 'themes'; box.appendChild(g); renderThemes(g); return; }
     if (current !== 1) return;
     var wrap = document.createElement('div'); wrap.className = 'roster';
     GROUPS.forEach(function (g) {
@@ -190,8 +241,9 @@
   });
 
   /* ---------- Onboard skills (work with no Python; data stays in this browser) ---------- */
-  var STATE_KEY = 'marsai.state', mem = { notes: [], missions: [], next: 1 };
+  var STATE_KEY = 'marsai.state', mem = { notes: [], missions: [], messages: [], next: 1 };
   try { var d0 = JSON.parse(lsGet(STATE_KEY) || 'null'); if (d0 && d0.notes && d0.missions) mem = d0; } catch (e) {}
+  if (!mem.messages) mem.messages = [];
   function persist() { lsSet(STATE_KEY, JSON.stringify(mem)); }
   function clean(s) { return s.replace(/\s+/g, ' ').replace(/^[,;:.\s-]+/, '').trim().slice(0, 500); }
   var JOKES = [
@@ -268,7 +320,7 @@
     }
     return null;
   }
-  var FALLBACK_TAIL = ' I can chat, check the weather, look things up on Wikipedia, do math, and keep notes and missions. For open conversation, say "enable brain" (a small AI that runs in your browser, no key).';
+  var FALLBACK_TAIL_UNUSED = ' I can chat, check the weather, look things up on Wikipedia, do math, and keep notes and missions. For open conversation, say "enable brain" (a small AI that runs in your browser, no key).';
 
   /* ---------- Math (safe parser, no eval) ---------- */
   function evalMath(str) {
@@ -288,89 +340,65 @@
     try { var v = evalMath(t); return (Math.round(v * 1e9) / 1e9).toString(); } catch (e) { return null; }
   }
 
-  /* ---------- Web lookups: weather (Open-Meteo) and facts (Wikipedia). No key. Every request is logged. ---------- */
-  var WMO = { 0: 'clear sky', 1: 'mainly clear', 2: 'partly cloudy', 3: 'overcast', 45: 'foggy', 48: 'foggy', 51: 'light drizzle', 53: 'drizzle', 55: 'heavy drizzle',
-    56: 'freezing drizzle', 57: 'freezing drizzle', 61: 'light rain', 63: 'rain', 65: 'heavy rain', 66: 'freezing rain', 67: 'freezing rain', 71: 'light snow', 73: 'snow', 75: 'heavy snow',
-    77: 'snow grains', 80: 'rain showers', 81: 'rain showers', 82: 'violent rain showers', 85: 'snow showers', 86: 'heavy snow showers', 95: 'a thunderstorm', 96: 'a thunderstorm with hail', 99: 'a thunderstorm with hail' };
-  var pending = null;
-  function okJson(r) { if (!r.ok) { var e = new Error('http ' + r.status); e.status = r.status; throw e; } return r.json(); }
+  /* ---------- Web data: weather, stocks, news, glossary, facts (see webdata.js). No keys. Every request is logged. ---------- */
+  var pending = null, glossaryTerms = [];
   function netMsg(e, what) {
     if (e && e.status === 429) return 'The ' + what + ' is rate limiting requests right now. Try again in a little while.';
     if (e && e.status) return 'The ' + what + ' returned an error (' + e.status + '). Try again later.';
     return "I couldn't reach the " + what + ' just now. Check your connection and try again.';
   }
-  function weatherIntent(cmd) { return /\b(weather|forecast|temperature|how (hot|cold|warm) is it|is it (raining|snowing|sunny|cold|hot|warm|windy))\b/.test(cmd); }
-  function extractCity(cmd) {
-    var m = cmd.match(/\b(?:in|for|at|near)\s+(?!the\b|my\b)([a-z][a-z .,'-]{1,50}?)(?:\s+(?:today|tomorrow|tonight|now|right now|please|like))?\s*\??$/);
-    return m ? m[1].replace(/[.,]+$/, '').trim() : null;
+  function webOff() { return 'Web data is off. Turn it on in Subsystems (or say "web on") to allow weather, stocks, news, and facts. No keys, and every request is logged.'; }
+  var web = window.MarsWeb ? MarsWeb.create({ imperial: /^en-US/i.test(navigator.language || ''), log: function (m) { log(m); } }) : null;
+  function webCall(fn, what) {
+    if (!web) return Promise.resolve({ text: 'Web data is not available right now.' });
+    if (!webOn) return Promise.resolve({ text: webOff() });
+    return fn().catch(function (e) { return { text: netMsg(e, what) }; });
   }
-  function webOff() { return 'Web lookups are off. Say "web on" to allow weather and Wikipedia (no key, every request is logged).'; }
-  function weatherAt(name, lat, lon) {
-    var imp = /^en-US/i.test(navigator.language || '');
-    var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon +
-      '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=1&timezone=auto' +
-      (imp ? '&temperature_unit=fahrenheit&wind_speed_unit=mph' : '');
-    log('Web: api.open-meteo.com (weather, no key)');
-    return timeoutFetch(url, {}, 9000).then(okJson).then(function (d) {
-      var c = d.current, dd = d.daily, u = imp ? '°F' : '°C', w = imp ? 'mph' : 'km/h';
-      var out = name + ': ' + Math.round(c.temperature_2m) + u + ' now, ' + (WMO[c.weather_code] || 'unsettled') + ', feels like ' + Math.round(c.apparent_temperature) + u +
-        ', wind ' + Math.round(c.wind_speed_10m) + ' ' + w + ', humidity ' + c.relative_humidity_2m + '%.';
-      if (dd && dd.temperature_2m_max) out += ' Today: high ' + Math.round(dd.temperature_2m_max[0]) + u + ', low ' + Math.round(dd.temperature_2m_min[0]) + u +
-        (dd.precipitation_probability_max && dd.precipitation_probability_max[0] != null ? ', ' + dd.precipitation_probability_max[0] + '% chance of precipitation' : '') + '.';
-      return out;
-    });
-  }
-  function weather(cmd) {
-    if (!webOn) return Promise.resolve(webOff());
-    var here = /\b(here|my location|where i am|near me)\b/.test(cmd), city = here ? null : extractCity(cmd) || (/\b(in|for|at|near)\b/.test(cmd) ? null : (lsGet('marsai.city') || null));
-    if (here) {
-      if (!navigator.geolocation) return Promise.resolve("This browser can't share your location. Say: weather in <city>.");
+  function loadGlossary() { if (web && webOn && !glossaryTerms.length) web.loadGlossary().then(function (ts) { glossaryTerms = ts.map(function (x) { return x.term.toLowerCase(); }); }, function () {}); }
+  function doWeather(a) {
+    if (a.here) {
+      if (!navigator.geolocation) return Promise.resolve({ text: "This browser can't share your location. Say: weather in <city>." });
       return new Promise(function (res) {
         navigator.geolocation.getCurrentPosition(function (p) {
-          weatherAt('Your location', p.coords.latitude.toFixed(3), p.coords.longitude.toFixed(3)).then(res, function (e) { res(netMsg(e, 'weather service')); });
-        }, function () { res('Location access was not granted. Say: weather in <city>.'); }, { timeout: 10000 });
+          webCall(function () { return web.weather({ lat: p.coords.latitude.toFixed(3), lon: p.coords.longitude.toFixed(3), label: 'Your location', ask: a.ask }); }, 'weather service').then(res);
+        }, function () { res({ text: 'Location access was not granted. Say: weather in <city>.' }); }, { timeout: 10000 });
       });
     }
-    if (!city) { pending = 'city'; return Promise.resolve('Which city? (Or say "weather here" to use your location.)'); }
-    log('Web: geocoding-api.open-meteo.com (place lookup, no key)');
-    return timeoutFetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(city) + '&count=1&language=en&format=json', {}, 9000)
-      .then(okJson)
-      .then(function (g) {
-        if (!g.results || !g.results.length) return "I couldn't find a place called " + city + '. Try another spelling.';
-        var p = g.results[0]; lsSet('marsai.city', p.name);
-        return weatherAt(p.name + (p.country ? ', ' + p.country : ''), p.latitude, p.longitude);
-      })
-      .catch(function (e) { return netMsg(e, 'weather service'); });
+    var city = a.city || lsGet('marsai.city');
+    if (!city) { pending = 'city'; return Promise.resolve({ text: 'Which city? (Or say "weather here" to use your location.)' }); }
+    return webCall(function () { return web.weather({ city: city, ask: a.ask }).then(function (r) { if (r.place) lsSet('marsai.city', r.place); return r; }); }, 'weather service');
   }
-  function wikiIntent(cmd) {
-    var m = cmd.match(/^(?:who|what) (?:is|are|was|were)(?: a| an| the)? (.+)$/) || cmd.match(/^(?:tell me about|tell me something about|explain|define|look up|lookup|search for|what do you know about)\s+(.+)$/);
-    if (!m) return null;
-    var q = m[1].replace(/\?$/, '').trim();
-    if (!q || /^(you|your|my|up|going on|the (time|date|day|weather)|this|that|it|here|new)\b/.test(q)) return null;
-    if (/\b(poem|story|song|haiku|essay|limerick|write|joke|riddle|rap|speech)\b/.test(q)) return null;   // creative requests belong to conversation, not lookup
-    return q;
+  function doSearch(q) { return webCall(function () { return web.wiki(q); }, 'Wikipedia'); }
+
+  /* ---------- Phone messages (WYWO quick-type parser, MPL-2.0, see assets/vendor) ---------- */
+  var WYWO = 'https://sukonik.github.io/wywo/';
+  function msgLine(o) {
+    var b = [];
+    b.push('From ' + (o.caller || 'an unknown caller') + (o.company ? ' (' + o.company + ')' : ''));
+    if (o.phone) b.push(o.phone); if (o.alt) b.push(o.alt); if (o.forWho) b.push('for ' + o.forWho);
+    return b.join(', ');
   }
-  function wiki(q) {
-    if (!webOn) return Promise.resolve(webOff());
-    log('Web: en.wikipedia.org (facts, no key)');
-    var url = 'https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=' + encodeURIComponent(q) +
-      '&gsrlimit=1&prop=extracts&exintro=1&explaintext=1&exsentences=2&redirects=1&format=json&origin=*';
-    return timeoutFetch(url, {}, 9000).then(okJson).then(function (d) {
-      var pages = d.query && d.query.pages, p = pages && pages[Object.keys(pages)[0]];
-      if (!p || !p.extract) return "I couldn't find a good match for " + q + ' on Wikipedia.';
-      var ex = p.extract.replace(/\s+/g, ' ').trim(); if (ex.length > 420) ex = ex.slice(0, 417).replace(/\s+\S*$/, '') + '...';
-      return ex + ' (Wikipedia: ' + p.title + ')';
-    }).catch(function (e) { return netMsg(e, 'Wikipedia'); });
+  function addMessage(text) {
+    if (!window.QuickType) { reply('The message parser is not available right now. Use "note ..." instead.'); return; }
+    var o = QuickType.parse(text), rec = { id: mem.next++, at: Date.now(), caller: o.caller || '', company: o.company || '', phone: o.phone || '', alt: o.alt || '', forWho: o.forWho || '', reason: o.reason || '', topics: o.topics || '', urgent: !!o.urgent, time: o.time || '', action: o.action || '', extra: o.extra || '' };
+    mem.messages.push(rec); mem.messages = mem.messages.slice(-200); persist();
+    var s = 'Message #' + rec.id + ' saved. ' + msgLine(rec) + '.' + (rec.topics ? ' About: ' + rec.topics.replace(/\n/g, ', ') + '.' : rec.reason ? ' ' + rec.reason : '') + (rec.urgent ? ' Marked urgent.' : '');
+    reply(s, rec.urgent ? 'warning' : 'confirm', [{ title: 'Open WYWO to print or export this note', url: WYWO, sub: 'While You Were Out: turns a call into a clear, printable callback note' }]);
+  }
+  function listMessages() {
+    if (!mem.messages.length) { reply('No messages yet. Say "take a message" and then tell me who called and what they need.'); return; }
+    var last = mem.messages.slice(-5).reverse();
+    reply('You have ' + mem.messages.length + ' message' + (mem.messages.length === 1 ? '' : 's') + '. Most recent first:', null, last.map(function (r) {
+      return { title: (r.urgent ? 'URGENT · ' : '') + msgLine(r), sub: (r.topics ? r.topics.replace(/\n/g, ', ') : r.reason) + ' · ' + new Date(r.at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) };
+    }).concat([{ title: 'Open WYWO to print or export', url: WYWO }]));
   }
 
   /* ---------- ShipCore link (optional local Python service, no key) ---------- */
   function updateBadge() {
     var brainReady = window.MarsBrain && MarsBrain.state() === 'ready';
     var t = link.online ? (link.llm ? 'SHIPCORE + LOCAL AI' : 'SHIPCORE') : (brainReady ? 'ONBOARD + AI BRAIN' : 'ONBOARD CORE');
-    $('#link-text').textContent = t; $('#link-text2').textContent = t;
-    $('#node-net').textContent = link.online ? 'CONNECTED' : 'OFFLINE';
-    $('#node-core').textContent = link.online ? 'HANDED OFF' : 'ONLINE';
-    renderTrace(); updateBoot();
+    $('#link-text').textContent = t;
+    renderTrace(); updateBoot(); refreshSwitches();
   }
   function setLink(online, info) {
     link.online = online;
@@ -378,10 +406,12 @@
     updateBadge();
   }
   function checkLink(announce) {
+    if (!coreEnabled) { setLink(false); return Promise.resolve(); }
+    coreSearching = true; refreshSwitches();
     return timeoutFetch(SHIPCORE + '/health', {}, 1500)
       .then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); })
-      .then(function (info) { setLink(true, info); if (window.MarsVoice) MarsVoice.refresh(); if (announce) reply('ShipCore connected (v' + info.version + ').'); })
-      .catch(function () { setLink(false); if (window.MarsVoice) MarsVoice.refresh(); if (announce) reply('ShipCore was not found on this machine. Using the onboard core. See docs/SHIPCORE.md.'); });
+      .then(function (info) { coreSearching = false; setLink(true, info); if (window.MarsVoice) MarsVoice.refresh(); if (announce) reply('ShipCore connected (v' + info.version + ').'); })
+      .catch(function () { coreSearching = false; setLink(false); if (window.MarsVoice) MarsVoice.refresh(); if (announce) reply('ShipCore was not found on this machine. Using the onboard core. See docs/SHIPCORE.md.'); });
   }
   function ask(raw) {
     return timeoutFetch(SHIPCORE + '/chat', {
@@ -392,31 +422,66 @@
   }
   var SC_EVENT = { 'skill:mission_add': 'confirm', 'skill:note_add': 'confirm', 'skill:mission_done': 'celebrate' };
 
-  /* ---------- In-browser AI brain (optional, opt-in) ---------- */
-  var brainBtn = $('#brain-btn'), brainNote = null;
+  /* ---------- Subsystems: switches with indicator lights. Everything is ON by default; the captain can turn any of it off. ---------- */
+  var coreEnabled = lsGet('marsai.core') !== '0', coreSearching = false, brainPct = 0, brainNote = null, brainSkipped = '';
+  function swSet(key, on, text, busy) {
+    var el = $('#sw-' + key); if (!el) return;
+    el.setAttribute('aria-checked', !!on); el.setAttribute('data-state', busy ? 'busy' : on ? 'on' : 'off');
+    var s = $('#st-' + key); if (s) s.textContent = text;
+  }
+  function refreshSwitches() {
+    var v = window.MarsVoice, bs = window.MarsBrain ? MarsBrain.state() : 'off';
+    swSet('voice', v && v.enabled(), !v || !v.canSpeak() ? (v && v.enabled() ? 'NO VOICE' : 'OFF') : (v.enabled() ? 'ON' : 'OFF'));
+    swSet('mic', v && v.micEnabled() && v.micPossible(), !v || !v.micPossible() ? 'NO MIC' : (v.micEnabled() ? 'READY' : 'OFF'));
+    swSet('web', webOn, webOn ? 'ON' : 'OFF');
+    swSet('brain', bs === 'ready' || bs === 'loading', bs === 'ready' ? 'ON ' + (MarsBrain.device() === 'webgpu' ? 'GPU' : 'CPU') : bs === 'loading' ? brainPct + '%' : (brainSkipped || 'OFF'), bs === 'loading');
+    swSet('core', coreEnabled && link.online, !coreEnabled ? 'OFF' : link.online ? (link.llm ? 'LOCAL AI' : 'CONNECTED') : (coreSearching ? 'SEARCHING' : 'NOT FOUND'), coreEnabled && coreSearching);
+    swSet('sfx', v && v.sfxEnabled(), v && v.sfxEnabled() ? 'ON' : 'OFF');
+  }
   function brainUi(state, extra) {
     extra = extra || {};
     if (state === 'loading') {
-      brainBtn.textContent = 'AI BRAIN: ' + (extra.pct != null ? extra.pct + '%' : 'LOADING');
+      brainPct = extra.pct || 0;
       if (!brainNote) brainNote = addMsg('sys', '', 'AI brain downloading...');
-      if (extra.pct != null) brainNote.textContent = 'AI brain downloading: ' + extra.pct + '% ' + (extra.file ? '(' + extra.file.split('/').pop() + ')' : '');
+      brainNote.textContent = 'AI brain downloading: ' + brainPct + '%';
     } else if (state === 'ready') {
-      brainBtn.textContent = 'AI BRAIN: ON'; brainBtn.setAttribute('aria-pressed', 'true');
-      addMsg('sys', '', 'AI brain ready (' + (extra.device === 'webgpu' ? 'GPU' : 'CPU') + '). Open conversation is on.'); brainNote = null;
+      addMsg('sys', '', 'AI brain ready (' + (extra.device === 'webgpu' ? 'GPU' : 'CPU') + '). Open conversation is richer now.'); brainNote = null;
     } else if (state === 'error') {
-      brainBtn.textContent = 'AI BRAIN: OFF'; brainBtn.setAttribute('aria-pressed', 'false'); brainNote = null;
-      addMsg('sys', '', 'AI brain could not start: ' + (extra.message || 'unknown error') + '. Typing and the built-in skills still work.');
-    } else { brainBtn.textContent = 'AI BRAIN: OFF'; brainBtn.setAttribute('aria-pressed', 'false'); brainNote = null; }
+      brainNote = null; addMsg('sys', '', 'AI brain could not start: ' + (extra.message || 'unknown error') + '. I still chat, look things up, and run all my skills.');
+    } else { brainNote = null; }
     updateBadge();
   }
   if (window.MarsBrain) MarsBrain.onChange(brainUi);
-  function brainOn(ask_) {
+  function brainOn(manual) {
     if (!window.MarsBrain || MarsBrain.state() !== 'off') return;
-    if (ask_ && !window.confirm('Enable the AI brain?\n\nThis downloads a small open AI model (about 400 MB, Apache-2.0) once from huggingface.co, caches it in your browser, and runs it on this device. No key, and your messages stay on this device. The model library loads from cdn.jsdelivr.net.')) return;
-    lsSet('marsai.brain', '1'); MarsBrain.enable();
+    lsSet('marsai.brain', '1'); brainSkipped = '';
+    addMsg('sys', '', 'Loading the on-device AI (about 400 MB, once, then cached). I can chat and use every skill while it loads.');
+    MarsBrain.enable(); refreshSwitches();
   }
-  function brainOff() { lsSet('marsai.brain', '0'); if (window.MarsBrain) MarsBrain.disable(); }
-  brainBtn.addEventListener('click', function () { if (MarsBrain.state() === 'ready' || MarsBrain.state() === 'loading') brainOff(); else brainOn(true); });
+  function autoBrain() {      // default ON at power-on, but kind to slow connections and small devices
+    if (!window.MarsBrain || MarsBrain.state() !== 'off' || lsGet('marsai.brain') === '0') return;
+    var c = navigator.connection || {};
+    if (c.saveData || /^(slow-2g|2g|3g)$/.test(c.effectiveType || '')) { brainSkipped = 'SKIPPED'; addMsg('sys', '', 'Skipped the on-device AI download because of a slow or data-saving connection. Turn on "AI brain" in Subsystems when you are ready.'); refreshSwitches(); return; }
+    if (navigator.deviceMemory && navigator.deviceMemory <= 2) { brainSkipped = 'SKIPPED'; addMsg('sys', '', 'Skipped the on-device AI because this device has little memory. I still chat and use every skill.'); refreshSwitches(); return; }
+    brainOn(false);
+  }
+  function brainOff() { lsSet('marsai.brain', '0'); brainSkipped = ''; if (window.MarsBrain) MarsBrain.disable(); refreshSwitches(); }
+  function coreToggle(on) {
+    coreEnabled = !!on; lsSet('marsai.core', on ? '1' : '0');
+    if (on) checkLink(true); else { setLink(false); if (window.MarsVoice) MarsVoice.refresh(); }
+    refreshSwitches();
+  }
+  function toggleSwitch(key) {
+    var v = window.MarsVoice, el = $('#sw-' + key), on = el.getAttribute('aria-checked') !== 'true';
+    if (key === 'voice') { var ok = v.setSpeak(on); if (on && !ok) addMsg('sys', '', 'This device has no speech voices, so I will stay in text.'); }
+    else if (key === 'mic') { var mk = v.setMic(on); if (on && !mk) addMsg('sys', '', 'Voice input is not available in this browser. Typing works everywhere.'); }
+    else if (key === 'web') webToggle(on);
+    else if (key === 'brain') { if (on) brainOn(true); else brainOff(); }
+    else if (key === 'core') coreToggle(on);
+    else if (key === 'sfx') v.setSfx(on);
+    refreshSwitches(); say(el.querySelector('.nm').textContent + (on ? ' on' : ' off'));
+  }
+  $$('.sw').forEach(function (b) { b.addEventListener('click', function () { toggleSwitch(b.getAttribute('data-sw')); }); });
   function brainReply(raw) {
     var c = me();
     var sys = 'You are ' + c.name + ', the ' + c.role + ' aboard the captain\'s starship in an original game called MARSAI. Personality: ' + c.persona +
@@ -434,13 +499,12 @@
         if (window.MarsVoice) MarsVoice.speak(text);
       }).catch(function () { node.textContent = 'My thoughts got tangled there. Ask me again?'; });
   }
-  function webToggle(on) { webOn = on; lsSet('marsai.web', on ? '1' : '0'); $('#web-btn').setAttribute('aria-pressed', on); $('#web-btn').textContent = 'WEB LOOKUPS: ' + (on ? 'ON' : 'OFF'); }
-  $('#web-btn').addEventListener('click', function () { webToggle(!webOn); });
+  function webToggle(on) { webOn = on; lsSet('marsai.web', on ? '1' : '0'); refreshSwitches(); }
   webToggle(webOn);
 
   /* ---------- Command handling ---------- */
-  var HELP = 'Just talk to me. For example: "take me to the crew", "talk to Pluto", "I need someone to challenge my plan", "remind me to call mom", "what is on my plate", "write this down: milk and eggs", ' +
-    '"do I need an umbrella in Paris?", "who is Ada Lovelace?", "what is 15 percent of 80", "turn on the voice", "go full screen". I will ask if I am unsure.';
+  var HELP = 'Just talk to me. For example: "take me to the crew", "talk to Pluto", "I need someone to challenge my plan", "remind me to call mom", "what is on my plate", "take a message: Phil called 555-123-4567 about the invoice", ' +
+    '"do I need an umbrella in Paris?", "price of SCHD", "any AI news?", "what is hallucination?", "who is Ada Lovelace?", "tell me a joke", "change the theme to Solar Forge", "turn off the voice". I will ask if I am unsure.';
 
   /* ---------- Plain-language actions (MarsCopilot understands, this executes) ---------- */
   var pendingAct = null;
@@ -526,8 +590,27 @@
       case 'date': reply('Today is ' + new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + '.'); return Promise.resolve();
       case 'math':
         try { reply('That comes to ' + (Math.round(evalMath(a.expr) * 1e9) / 1e9) + '.'); } catch (e) { return null; } return Promise.resolve();
-      case 'weather': return weather(a.here ? 'weather here' : (a.city ? 'weather in ' + a.city.toLowerCase() : 'weather')).then(function (tx) { reply(tx); });
-      case 'fact': return wiki(a.query).then(function (tx) { reply(tx); });
+      case 'weather': return doWeather(a).then(function (r) { reply(r.text, null, r.cards); });
+      case 'fact': return doSearch(a.query).then(function (r) { reply(r.text, null, r.cards); });
+      case 'stock':
+        if (!a.query) { pending = 'stock'; reply('Which ticker or company? For example SCHD, KO, or Apple.'); return Promise.resolve(); }
+        return webCall(function () { return web.stock(a.query); }, 'Payout Lab data').then(function (r) { reply(r.text, null, r.cards); });
+      case 'news': return webCall(function () { return web.news(a.topic); }, 'GoldBrief news').then(function (r) { reply(r.text, null, r.cards); });
+      case 'glossary': return webCall(function () { return web.glossary(a.term).then(function (r) { return r || web.wiki(a.term); }); }, 'GoldBrief glossary').then(function (r) { reply(r.text, null, r.cards); });
+      case 'message_add':
+        if (!a.text) { pending = 'message'; reply('Okay, go ahead. Tell me who called, their number, who it is for, and what they need.'); return Promise.resolve(); }
+        addMessage(a.text); return Promise.resolve();
+      case 'message_list': listMessages(); return Promise.resolve();
+      case 'theme': {
+        var th = a.id ? applyTheme(a.id, true) : applyTheme((a.random ? THEMES[Math.floor(Math.random() * THEMES.length)] : nextTheme(a.prev ? -1 : 1)).id, true);
+        reply(ack() + ' Theme: ' + th.name + '.'); return Promise.resolve();
+      }
+      case 'list_themes': reply('Eight themes: ' + THEMES.map(function (x) { return x.name; }).join(', ') + '. Say "change the theme to Solar Forge", or open Theme Lab.'); return Promise.resolve();
+      case 'open_app': {
+        var apps = { clearsky: ['ClearSky Weather', 'https://sukonik.github.io/weather-app/', 'Hourly forecast, wind, tides, air quality, UV, and moon'], payout: ['Payout Lab', 'https://sukonik.github.io/payout-lab/', 'Stress-test the dividend portfolio you already own'],
+          goldbrief: ['GoldBrief', 'https://sukonik.github.io/goldbrief/', 'AI news, explained, with sources and labels'], wywo: ['WYWO: While You Were Out', WYWO, 'Turn a phone call into a printable callback note'] };
+        var ap = apps[a.app]; reply(ack() + ' Here is ' + ap[0] + '.', null, [{ title: ap[0], url: ap[1], sub: ap[2] }]); return Promise.resolve();
+      }
       case 'voice': {
         var ok = window.MarsVoice ? MarsVoice.setSpeak(a.on) : false;
         reply(a.on ? (ok ? ack() + ' I will speak my replies.' : 'I have no voice on this device, so I will stay in text.') : ack() + ' Going quiet.'); return Promise.resolve();
@@ -548,10 +631,12 @@
 
   function handle(raw) {
     var cmd = raw.toLowerCase().replace(/[.!,;]+$/, '').replace(/\s+/g, ' ').trim();
-    if (pending === 'city') {
-      pending = null;
-      if (!/^(never mind|nevermind|cancel|no|skip)$/.test(cmd)) return weather('weather in ' + cmd).then(function (t) { reply(t); });
-      reply('No problem.'); return Promise.resolve();
+    if (pending) {
+      var kind = pending; pending = null;
+      if (/^(never mind|nevermind|cancel|no|skip|forget it)$/.test(cmd)) { reply('No problem.'); return Promise.resolve(); }
+      if (kind === 'city') return doWeather({ city: raw.trim() }).then(function (r) { reply(r.text, null, r.cards); });
+      if (kind === 'stock') return webCall(function () { return web.stock(raw.trim()); }, 'Payout Lab data').then(function (r) { reply(r.text, null, r.cards); });
+      if (kind === 'message') { addMessage(raw); return Promise.resolve(); }
     }
     if (pendingAct && pendingAct.type === 'choose') {          // answering "which guardian?"
       var opt = pendingAct.options.map(crewObj).filter(function (x) { return cmd.indexOf(x.name.toLowerCase()) > -1; })[0];
@@ -577,7 +662,7 @@
     if (window.MarsCopilot) {
       var needsMissions = /\b(finish|finished|complete|completed|done|mark|cross|check off|tick|wrapped|nailed|did)\b/.test(cmd);
       return (needsMissions ? getMissions() : Promise.resolve(mem.missions)).then(function (ms) {
-        var act = MarsCopilot.analyze(raw, { crew: CREW, missions: ms });
+        var act = MarsCopilot.analyze(raw, { crew: CREW, missions: ms, themes: THEMES, glossary: glossaryTerms });
         var out = act ? runAction(act, raw) : null;
         if (out) return out;
         return rest(raw, cmd);
@@ -587,15 +672,21 @@
   }
   function rest(raw, cmd) {
     var st = smalltalk(cmd); if (st) { reply(st); return Promise.resolve(); }
-    var ma = mathIntent(cmd); if (ma !== null) { reply('That comes to ' + ma + '.'); return Promise.resolve(); }
-    if (weatherIntent(cmd)) return weather(cmd).then(function (t) { reply(t); });
-    var wq = wikiIntent(cmd); if (wq) return wiki(wq).then(function (t) { reply(t); });
+    if (window.MarsDialog) { var d = MarsDialog.respond(raw, { crew: me(), captain: captain, now: new Date() }); if (d) { reply(d.text); return Promise.resolve(); } }
+    var QUESTION = /\?\s*$|^(?:who|what|why|how|when|where|which|is|are|can|does|do|did|will|was|were)\b/i, PERSONAL = /\b(?:you|your|yours|i|my|me|we|us|our|should|would|could)\b/i;
     var go = function () {
       if (window.MarsBrain && MarsBrain.state() === 'ready') return brainReply(raw);
-      reply(line('unknown') + (MarsBrain && MarsBrain.state() === 'loading' ? ' My AI brain is still loading, so try again in a moment.' : FALLBACK_TAIL));
+      var q = raw.replace(/\?+\s*$/, '').trim();
+      if (webOn && web && QUESTION.test(raw) && !PERSONAL.test(raw) && q.split(/\s+/).length >= 2) {      // a general question: find real answers with links
+        return doSearch(q.replace(/^(?:who|what|why|how|when|where|which)\s+(?:is|are|was|were|does|do|did)\s+/i, '')).then(function (r) { reply(r.text, null, r.cards); });
+      }
+      var text = window.MarsDialog ? MarsDialog.fallback({ crew: me(), captain: captain }) : line('unknown');
+      reply(text + (MarsBrain && MarsBrain.state() === 'loading' ? ' My AI brain is still loading, so ask me again in a moment for a fuller answer.' : ''), null,
+        webOn ? [{ title: 'Search the web for "' + (q.length > 40 ? q.slice(0, 40) + '...' : q) + '"', url: 'https://duckduckgo.com/?q=' + encodeURIComponent(q), sub: 'DuckDuckGo' }] : null);
+      return Promise.resolve();
     };
-    if (link.online) return ask(raw).then(function (d) {
-      if (d && d.source !== 'fallback') reply(d.reply, SC_EVENT[d.source]); else if (d) go();
+    if (link.online) return ask(raw).then(function (d2) {
+      if (d2 && d2.source !== 'fallback') reply(d2.reply, SC_EVENT[d2.source]); else if (d2) return go();
     });
     var ob = onboard(raw);
     if (ob) { reply(ob.text, ob.ev); return Promise.resolve(); }
@@ -653,12 +744,11 @@
   /* ---------- Session clock ---------- */
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function tick() {
-    var s = Math.floor((Date.now() - startedAt) / 1000);
-    $('#chrono').textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60);
-    var n = new Date(), doy = Math.floor((n - new Date(n.getFullYear(), 0, 0)) / 86400000);
-    $('#stardate').textContent = ('00' + doy).slice(-3);
+    var n = new Date();
+    $('#clock-date').textContent = n.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+    $('#clock-time').textContent = n.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
   }
-  function startClock() { stopClock(); tick(); timer = setInterval(tick, 1000); }
+  function startClock() { stopClock(); tick(); timer = setInterval(tick, 15000); }
   function stopClock() { if (timer) { clearInterval(timer); timer = null; } }
   document.addEventListener('visibilitychange', function () {
     if (hud.hidden) return;
@@ -680,7 +770,6 @@
   $('#settings-btn').addEventListener('click', function () { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); });
   $('#settings-close').addEventListener('click', function () { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); });
   dlg.addEventListener('click', function (e) { if (e.target === dlg && dlg.close) dlg.close(); });
-  $('#connect-btn').addEventListener('click', function () { checkLink(true); });
 
   /* ---------- Power ---------- */
   function power(on, from) {
@@ -700,7 +789,7 @@
       checkLink(false);
       updateBoot();
       if (!convo.children.length) setTimeout(function () { reply(line('greet'), 'greeting'); }, reduced ? 350 : 2300);
-      if (lsGet('marsai.brain') === '1' && window.MarsBrain && MarsBrain.state() === 'off') MarsBrain.enable();
+      refreshSwitches(); loadGlossary(); setTimeout(autoBrain, reduced ? 400 : 2400);
     } else {
       if (fsEl()) { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {} }
       stopClock(); closeDrawer(); if (window.MarsVoice) MarsVoice.stop(); if (dlg.open && dlg.close) dlg.close();
@@ -720,12 +809,50 @@
     power(false);
   });
 
+  /* ---------- Physical controls: knobs, finishes, specular light, tactile ticks (adapted from the GoldenSunDJ controller) ---------- */
+  function haptic() { try { if (navigator.vibrate) navigator.vibrate(7); } catch (e) {} }
+  function bindSlider(id, outId, o) {      // neon sliders: glowing fill, glossy pill thumb, a tick on every step band
+    var el = $(id), out = $(outId); if (!el) return;
+    var lastBand = null;
+    function paint() { var p = (el.value - el.min) / (el.max - el.min) * 100; el.style.setProperty('--p', p + '%'); out.textContent = o.fmt(+el.value); }
+    el.addEventListener('input', function () {
+      paint(); o.set(+el.value);
+      var band = Math.floor((el.value - el.min) / o.tick); if (lastBand !== null && band !== lastBand) { haptic(); if (window.MarsVoice) MarsVoice.cue('tick'); } lastBand = band;
+    });
+    el.value = o.get(); paint(); lastBand = Math.floor((el.value - el.min) / o.tick);
+    return { sync: function () { el.value = o.get(); paint(); } };
+  }
+  var speedSlider = bindSlider('#sl-speed', '#kv-speed', { tick: 10, get: function () { return Math.round((window.MarsVoice ? MarsVoice.getRate() : 1) * 100); }, set: function (v) { if (window.MarsVoice) MarsVoice.setRate(v / 100); }, fmt: function (v) { return (v / 100).toFixed(2) + 'x'; } });
+  bindSlider('#sl-vol', '#kv-vol', { tick: 10, get: function () { return Math.round((window.MarsVoice ? MarsVoice.getVolume() : 0.8) * 100); }, set: function (v) { if (window.MarsVoice) MarsVoice.setVolume(v / 100); }, fmt: function (v) { return v + ''; } });
+  (function () { var r = $('#voice-rate'); if (!r) return; var paint = function () { r.style.setProperty('--p', ((r.value - r.min) / (r.max - r.min) * 100) + '%'); }; r.addEventListener('input', function () { paint(); if (speedSlider) speedSlider.sync(); }); paint(); })();
+  function applyMaterial(id) {
+    if (['carbon', 'titanium', 'matte'].indexOf(id) < 0) id = 'carbon';
+    hud.setAttribute('data-material', id); lsSet('marsai.material', id);
+    $$('#finishes .key').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-material') === id); });
+    return id;
+  }
+  $$('#finishes .key').forEach(function (b) { b.addEventListener('click', function () { applyMaterial(b.getAttribute('data-material')); }); });
+  applyMaterial(lsGet('marsai.material') || 'carbon');
+  hud.addEventListener('pointerdown', function (e) {      // a soft click and a short buzz on anything you press
+    var b = e.target.closest && e.target.closest('.key, .slot, .sw, .theme, .roster button'); if (!b || b.disabled) return;
+    haptic(); if (window.MarsVoice) MarsVoice.cue('tick');
+  });
+  if (!reduced) {     // the highlight on the metal parts follows your pointer, or the tilt of your phone
+    var raf = 0, sx = 0, sy = 0;
+    var paint = function () { raf = 0; hud.style.setProperty('--tx', sx.toFixed(3)); hud.style.setProperty('--ty', sy.toFixed(3)); };
+    hud.addEventListener('pointermove', function (e) { sx = (e.clientX / innerWidth - 0.5) * 2; sy = (e.clientY / innerHeight - 0.5) * 2; if (!raf) raf = requestAnimationFrame(paint); });
+    window.addEventListener('deviceorientation', function (e) { if (e.gamma == null || hud.hidden) return; sx = Math.max(-1, Math.min(1, e.gamma / 30)); sy = Math.max(-1, Math.min(1, ((e.beta || 45) - 45) / 30)); if (!raf) raf = requestAnimationFrame(paint); });
+  }
+
   /* ---------- Start ---------- */
+  applyTheme(lsGet('marsai.theme') || 'ares', false); renderThemes($('#themes-quick')); refreshSwitches();
   fetch('assets/crew.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
     if (d && d.crew && d.crew.length) { CREW = d.crew; if (!findCrew(me().name)) crewId = 'MARS'; setCrew(crewId, false); renderExtra(); }
   }).catch(function () {});
   if (window.MarsVoice) MarsVoice.init({
     base: SHIPCORE,
+    isHudOpen: function () { return !hud.hidden; },
+    onEngines: function () { refreshSwitches(); },
     getCrew: function () { return crewId; },
     getCrewData: function () { return me(); },
     onTranscript: function (txt) {

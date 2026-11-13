@@ -11,9 +11,16 @@ Voice is optional everywhere. Typing always works, and no navigation depends on 
 
 The HUD shows which engine is active (for example `LISTEN: LOCAL WHISPER | SPEAK: LOCAL PIPER`) and shows live voice status under the console: listening, transcribing, what it heard, or a plain-language reason it failed (blocked microphone, no microphone, unreachable browser speech service).
 
-### Listening
+### Listening: press, wait for SPEAK NOW, talk, release
 
-Click **MIC** and speak. With local Whisper the HUD records from your microphone, stops by itself about 1.4 seconds after you stop talking (or after 30 seconds), sends the clip to ShipCore on this machine, and runs the transcript as a command. Whisper is primed with MARSAI vocabulary (new mission, open crew, ShipCore, Mars, Venus) and speech punctuation is normalized, so "New mission, learn baking." works.
+Speech to speech is the default. The talk disc at the left of the message line is a press-to-talk key:
+
+1. **Press and hold** the disc (or hold **Space** when you are not typing). The ring shows **STARTING**, then **SPEAK NOW** with a rising chime: the mic is live.
+2. **Talk.** The ring changes to **LISTENING** (and the marker spins) when it hears you, and the waveform follows your voice.
+3. **Release** to send. A falling chime marks the end and the ring shows **THINKING**. The reply is spoken in the crew member's voice (**SPEAKING**).
+4. A quick **tap** instead talks until you pause (about 1.4 seconds of silence), and a second tap sends right away. Pressing the disc while a reply is playing interrupts it.
+
+Local Whisper (ShipCore) is used when it is running; otherwise the browser's speech recognition. Voice replies are on by default; turn them off with the **Voice replies** switch in Subsystems. Volume and Voice speed are sliders in Subsystems. The mic only starts when you press it.
 
 ### Speaking: every crew member has their own voice
 
