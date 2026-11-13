@@ -349,6 +349,7 @@ Development handoffs:
 - [Core application build handoff](docs/BUILD_HANDOFF.md)
 - [Site V1 development handoff for Cole](docs/COLE_SITE_V1_HANDOFF.md)
 - [Logo and wordmark handoff](docs/LOGO_HANDOFF.md)
+- [Typography system](docs/TYPOGRAPHY.md)
 
 ## 🏷️ Versions
 
