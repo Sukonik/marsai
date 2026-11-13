@@ -420,9 +420,13 @@
   function brainReply(raw) {
     var c = me();
     var sys = 'You are ' + c.name + ', the ' + c.role + ' aboard the captain\'s starship in an original game called MARSAI. Personality: ' + c.persona +
-      ' Speak naturally in one to three short sentences and be genuinely helpful. You are an AI character. You cannot access the internet or live data such as weather, and you must not claim to run commands.' +
+      ' Always answer in first person as ' + c.name + ', in that personality, in one to three short sentences. Never say you are an AI model or an assistant, and never lecture. ' +
+      'You cannot access the internet or live data such as weather, and you must not claim to run commands.' +
       (captain ? ' The captain\'s name is ' + captain + '.' : '');
-    var msgs = [{ role: 'system', content: sys }].concat(history.slice(-6), [{ role: 'user', content: raw }]);
+    // Two in-character example turns (the crew member's own lines) anchor the voice for a small model.
+    var shots = [{ role: 'user', content: 'Hello!' }, { role: 'assistant', content: fill((c.lines.greet || [''])[0]) },
+      { role: 'user', content: "I'm feeling stressed." }, { role: 'assistant', content: fill((c.lines.cheer || [''])[0]) }];
+    var msgs = [{ role: 'system', content: sys }].concat(shots, history.slice(-6), [{ role: 'user', content: raw }]);
     var node = addMsg('crew', label(c), '...'), started = false;
     return MarsBrain.chat(msgs, function (tok) { if (!started) { node.textContent = ''; started = true; } node.textContent += tok; convo.scrollTop = convo.scrollHeight; })
       .then(function (text) {
