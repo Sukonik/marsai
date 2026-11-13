@@ -4,7 +4,7 @@
 
 # 🪐 MARSAI
 
-[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.1.3**
+[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.1.5**
 
 ## ONE GALAXY. INFINITE STORIES.
 
@@ -350,11 +350,15 @@ Development handoffs:
 - [Site V1 development handoff for Cole](docs/COLE_SITE_V1_HANDOFF.md)
 - [Logo and wordmark handoff](docs/LOGO_HANDOFF.md)
 - [Typography system](docs/TYPOGRAPHY.md)
+- [HUD references and ranking](docs/hud_references.md)
+- [Typography system](docs/TYPOGRAPHY.md)
 
 ## 🏷️ Versions
 
 Each merged pull request is a version, logged in [issue #4](https://github.com/Sukonik/marsai/issues/4) and [CHANGELOG.md](CHANGELOG.md).
 
+- [v0.1.5](https://github.com/Sukonik/marsai/pull/10): self-hosted fonts and HUD references
+- [v0.1.4](https://github.com/Sukonik/marsai/pull/9): Orbitron and Quantico typography
 - [v0.1.3](https://github.com/Sukonik/marsai/pull/8): clean sweep of stale notes
 - [v0.1.2](https://github.com/Sukonik/marsai/pull/7): bridge shell site and Pages deploy
 - [v0.1.1](https://github.com/Sukonik/marsai/pull/6): logo and wordmark system
