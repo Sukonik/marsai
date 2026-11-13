@@ -3,7 +3,7 @@
   'use strict';
   var worker = null, state = 'off', device = '', nextId = 1, pending = {}, listeners = [];
   function emit(extra) { listeners.forEach(function (f) { f(state, extra); }); }
-  function start() {
+  function start(cpuOnly) {
     if (worker) return;
     state = 'loading'; emit({ pct: 0 });
     try { worker = new Worker('assets/brain-worker.js', { type: 'module' }); }
@@ -12,7 +12,11 @@
       var m = e.data;
       if (m.type === 'progress') emit({ pct: m.pct, file: m.file });
       else if (m.type === 'ready') { state = 'ready'; device = m.device; emit({ device: m.device }); }
-      else if (m.type === 'error' && !m.id) { state = 'error'; worker.terminate(); worker = null; emit({ message: m.message }); }
+      else if (m.type === 'error' && !m.id) {
+        worker.terminate(); worker = null;
+        if (m.retryCpu) { start(true); return; }         // GPU path failed: restart cleanly on CPU
+        state = 'error'; emit({ message: m.message });
+      }
       else if (m.id && pending[m.id]) {
         var p = pending[m.id];
         if (m.type === 'token') p.onToken && p.onToken(m.text);
@@ -21,10 +25,10 @@
       }
     };
     worker.onerror = function () { state = 'error'; if (worker) worker.terminate(); worker = null; emit({ message: 'The AI brain failed to start.' }); };
-    worker.postMessage({ type: 'load' });
+    worker.postMessage({ type: 'load', preferGpu: !cpuOnly });
   }
   window.MarsBrain = {
-    enable: start,
+    enable: function () { start(false); },
     disable: function () { if (worker) worker.terminate(); worker = null; state = 'off'; pending = {}; emit(); },
     state: function () { return state; },
     device: function () { return device; },

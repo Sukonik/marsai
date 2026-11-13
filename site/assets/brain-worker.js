@@ -9,20 +9,21 @@ let gen = null, device = 'wasm', busy = false;
 function progress(p) {
   if (p.status === 'progress' && p.total) postMessage({ type: 'progress', pct: Math.round((p.loaded / p.total) * 100), file: p.file });
 }
-async function load() {
-  const tries = [];
-  if (self.navigator && navigator.gpu) tries.push(['webgpu', 'q4f16']);
-  tries.push(['wasm', 'q4']);
-  let last = null;
-  for (const [dev, dtype] of tries) {
-    try {
-      gen = await pipeline('text-generation', MODEL, { device: dev, dtype, progress_callback: progress });
-      device = dev;
-      postMessage({ type: 'ready', device: dev });
-      return;
-    } catch (e) { last = e; }
+async function hasGpu() {
+  try { return !!(self.navigator && navigator.gpu && await navigator.gpu.requestAdapter()); } catch (e) { return false; }
+}
+async function load(preferGpu) {
+  // Only try WebGPU when a real adapter exists. A failed WebGPU session poisons later CPU attempts in
+  // the same worker, so on failure we ask the page to restart this worker in CPU mode instead.
+  const gpu = preferGpu && await hasGpu();
+  const dev = gpu ? 'webgpu' : 'wasm', dtype = gpu ? 'q4f16' : 'q4';
+  try {
+    gen = await pipeline('text-generation', MODEL, { device: dev, dtype, progress_callback: progress });
+    device = dev;
+    postMessage({ type: 'ready', device: dev });
+  } catch (e) {
+    postMessage({ type: 'error', retryCpu: gpu, message: String(e && e.message || e) });
   }
-  postMessage({ type: 'error', message: String(last && last.message || last) });
 }
 async function chat(id, messages) {
   if (!gen) { postMessage({ type: 'error', id, message: 'brain not loaded' }); return; }
@@ -39,6 +40,6 @@ async function chat(id, messages) {
 }
 onmessage = (e) => {
   const m = e.data;
-  if (m.type === 'load') load();
+  if (m.type === 'load') load(m.preferGpu !== false);
   else if (m.type === 'chat') chat(m.id, m.messages);
 };
