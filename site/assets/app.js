@@ -95,20 +95,22 @@
     while (logEl.children.length > 50) logEl.removeChild(logEl.firstChild);
     logEl.scrollTop = logEl.scrollHeight;
   }
-  function reply(t) { log(t); say(t); }
+  function reply(t) { log(t); say(t); speak(t); }
   $('#console-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var input = $('#cmd'), raw = input.value.trim(), cmd = raw.toLowerCase();
     if (!raw) return;
     log('> ' + raw); input.value = '';
     var idx = findModule(cmd.replace(/^(open|go to|goto)\s+/, ''));
-    if (cmd === 'help') reply('Commands: help, bridge, crew, missions, shipcore, theme lab, roadmap, mars, venus, fullscreen, clear, power off.');
+    if (cmd === 'help') reply('Commands: help, bridge, crew, missions, shipcore, theme lab, roadmap, mars, venus, connect, fullscreen, clear, power off. With ShipCore running: notes, new mission, joke, status, time, and chat.');
     else if (idx > -1) setModule(idx, true);
     else if (cmd === 'mars' || cmd === 'venus') setCrew(cmd.toUpperCase());
     else if (cmd === 'fullscreen' || cmd === 'full screen') toggleFs();
     else if (cmd === 'clear') logEl.textContent = '';
     else if (cmd === 'power off' || cmd === 'off') power(false);
-    else reply('LOCAL DEMO: command not recognized. Type help.');
+    else if (cmd === 'connect') checkLink(true);
+    else if (link.online) ask(raw);
+    else reply('LOCAL DEMO: command not recognized. Type help, or run ShipCore locally (connect).');
   });
   $('#clear').addEventListener('click', function () { logEl.textContent = ''; $('#cmd').focus(); });
 
@@ -165,6 +167,79 @@
     if (document.hidden) stopClock(); else startClock();
   });
 
+
+  /* ---------- ShipCore link (optional local Python service, no key) ---------- */
+  var SHIPCORE = 'http://127.0.0.1:8765';
+  var link = { online: false, providers: [] };
+  function setLink(online, info) {
+    link.online = online;
+    var llm = online && info && info.providers && info.providers.some(function (p) { return p.available; });
+    $('#link-text').textContent = online ? (llm ? 'SHIPCORE + LOCAL AI' : 'SHIPCORE LOCAL') : 'LOCAL DEMO';
+    $('#link-text2').textContent = $('#link-text').textContent;
+    $('#node-net').textContent = online ? 'CONNECTED' : 'OFFLINE';
+    $('#node-core').textContent = online ? 'SHIPCORE' : 'ONLINE';
+  }
+  function timeoutFetch(url, opts, ms) {
+    var c = new AbortController(), id = setTimeout(function () { c.abort(); }, ms);
+    opts = opts || {}; opts.signal = c.signal;
+    return fetch(url, opts).finally(function () { clearTimeout(id); });
+  }
+  function checkLink(announce) {
+    return timeoutFetch(SHIPCORE + '/health', {}, 1500)
+      .then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); })
+      .then(function (info) { setLink(true, info); if (announce) reply('ShipCore connected (v' + info.version + ').'); })
+      .catch(function () { setLink(false); if (announce) reply('ShipCore not found on this machine. Staying in LOCAL DEMO. See docs/SHIPCORE.md.'); });
+  }
+  function ask(raw) {
+    log('...'); var pending = logEl.lastChild;
+    timeoutFetch(SHIPCORE + '/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: raw, crew: $('#crew').textContent })
+    }, 95000)
+      .then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); })
+      .then(function (d) { if (pending) pending.remove(); reply(d.speaker + ': ' + d.reply); })
+      .catch(function () { if (pending) pending.remove(); setLink(false); reply('ShipCore link lost. Back to LOCAL DEMO.'); });
+  }
+
+  /* ---------- Browser voice (no key; optional; never required) ---------- */
+  var micBtn = $('#mic'), speakBtn = $('#speak-toggle');
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var rec = null, speakOn = false, listening = false;
+  var canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  if (SR) { micBtn.hidden = false; }
+  if (canSpeak) { speakBtn.hidden = false; }
+  $('#voice-state').textContent = (SR || canSpeak) ? (SR && canSpeak ? 'MIC + SPEAKER' : SR ? 'MIC' : 'SPEAKER') : 'UNAVAILABLE';
+  $('#node-voice').textContent = $('#voice-state').textContent;
+  function speak(text) {
+    if (!speakOn || !canSpeak) return;
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text); u.lang = navigator.language || 'en-US';
+    speechSynthesis.speak(u);
+  }
+  function stopVoice() {
+    if (rec && listening) { try { rec.stop(); } catch (e) {} }
+    listening = false; micBtn.setAttribute('aria-pressed', 'false'); micBtn.classList.remove('listening'); micBtn.textContent = 'MIC';
+    if (canSpeak) speechSynthesis.cancel();
+  }
+  if (SR) micBtn.addEventListener('click', function () {
+    if (listening) { stopVoice(); return; }
+    rec = new SR(); rec.lang = navigator.language || 'en-US'; rec.interimResults = false; rec.maxAlternatives = 1;
+    rec.onresult = function (e) {
+      var said = e.results[0][0].transcript.trim();
+      if (said) { $('#cmd').value = said; $('#console-form').requestSubmit(); }
+    };
+    rec.onerror = function (e) { reply('Voice input unavailable: ' + (e.error || 'error') + '. Typing still works.'); };
+    rec.onend = function () { listening = false; micBtn.setAttribute('aria-pressed', 'false'); micBtn.classList.remove('listening'); micBtn.textContent = 'MIC'; };
+    try { rec.start(); listening = true; micBtn.setAttribute('aria-pressed', 'true'); micBtn.classList.add('listening'); micBtn.textContent = 'LISTENING'; say('Listening'); }
+    catch (e) { reply('Could not start the microphone.'); }
+  });
+  if (canSpeak) speakBtn.addEventListener('click', function () {
+    speakOn = !speakOn;
+    speakBtn.setAttribute('aria-pressed', speakOn);
+    speakBtn.textContent = 'SPEAK REPLIES: ' + (speakOn ? 'ON' : 'OFF');
+    if (!speakOn) speechSynthesis.cancel();
+  });
+
   /* ---------- Power ---------- */
   function power(on, from) {
     if (on === !hud.hidden) return;
@@ -179,9 +254,10 @@
       $('#hud-title').focus();
       say('HUD powered on. Local demo, no provider connected.');
       log('Power on. LOCAL DEMO.');
+      checkLink(false);
     } else {
       if (fsEl()) { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {} }
-      stopClock(); closeDrawer();
+      stopClock(); closeDrawer(); stopVoice();
       hud.hidden = true;
       site.inert = false;
       document.body.classList.remove('hud-on');

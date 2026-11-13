@@ -4,7 +4,8 @@ Every merged pull request is logged in [issue #4](https://github.com/Sukonik/mar
 
 | Version | PR | Commit | Summary |
 | --- | --- | --- | --- |
-| [0.1.6](https://github.com/Sukonik/marsai/pull/11) | [#11](https://github.com/Sukonik/marsai/pull/11) | pending | Power on / power off from the home screen, full-screen HUD v1 shell, website tabs, self-hosted JetBrains Mono |
+| [0.2.0](https://github.com/Sukonik/marsai/pull/12) | [#12](https://github.com/Sukonik/marsai/pull/12) | pending | ShipCore local Python service (V1.1 track): no-key skills, optional Ollama, HUD link, browser voice, CI |
+| [0.1.6](https://github.com/Sukonik/marsai/pull/11) | [#11](https://github.com/Sukonik/marsai/pull/11) | [79719c2](https://github.com/Sukonik/marsai/commit/79719c26191951628b8626dfa77ad2540cd34d5f) | Power on / power off from the home screen, full-screen HUD v1 shell, website tabs, self-hosted JetBrains Mono |
 | [0.1.5](https://github.com/Sukonik/marsai/pull/10) | [#10](https://github.com/Sukonik/marsai/pull/10) | [f883584](https://github.com/Sukonik/marsai/commit/f883584627d8b5c1ee701b6c2880467804395b37) | Self-host Orbitron and Quantico, remove deprecated lockup from site, add HUD references |
 | [0.1.4](https://github.com/Sukonik/marsai/pull/9) | [#9](https://github.com/Sukonik/marsai/pull/9) | [406d3b2](https://github.com/Sukonik/marsai/commit/406d3b281f485f4992f1dd8cea579b6929b58a49) | Adopt Orbitron display typography and Quantico large-panel typography |
 | [0.1.3](https://github.com/Sukonik/marsai/pull/8) | [#8](https://github.com/Sukonik/marsai/pull/8) | [e88e0c5](https://github.com/Sukonik/marsai/commit/e88e0c5d6fa295cc889543684010596cc080d44b) | Clean sweep: fix stale brand and handoff notes, changelog hash, site version label |
