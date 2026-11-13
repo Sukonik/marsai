@@ -27,7 +27,7 @@ a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .brand{display:flex;align-items:center;gap:.65rem;color:var(--text);text-decoration:none}
 .brand-mark{height:38px;width:38px}
 .brand-wordmark{font-family:var(--font-display);font-size:1.15rem;font-weight:800;letter-spacing:.18em;white-space:nowrap}
-.strip .status{margin-left:auto;color:var(--muted);font-family:var(--font-display);font-size:.75rem;font-weight:600;letter-spacing:.12em}
+.strip .status{margin-left:auto;white-space:nowrap;color:var(--muted);font-family:var(--font-display);font-size:.75rem;font-weight:600;letter-spacing:.12em}
 main{flex:1;display:grid;gap:1rem;padding:1rem;max-width:1100px;width:100%;margin:0 auto;grid-template-columns:1fr}
 .hero{text-align:center;padding:2.5rem 1rem;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
 .hero img{width:min(220px,50vw);height:auto}
@@ -40,6 +40,7 @@ h1{margin:.5rem 0 0;font-family:var(--font-display);font-weight:900;letter-spaci
 .mod h2{margin:0 0 .35rem;font-family:var(--font-panel);font-size:1.15rem;font-weight:700;letter-spacing:.08em;color:var(--accent)}
 .mod p{margin:0;color:var(--muted);font-size:.9rem}
 footer{padding:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;text-align:center}
+@media (max-width:440px){.strip .status{font-size:.58rem;letter-spacing:.06em}.brand-wordmark{font-size:1rem;letter-spacing:.12em}}
 @media (prefers-reduced-motion:no-preference){.hero img{transition:transform .4s}.hero img:hover{transform:rotate(-4deg) scale(1.03)}}
 </style>
 </head>
