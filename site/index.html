@@ -71,7 +71,7 @@
 
   <footer>
     <a href="https://github.com/Sukonik/marsai">GitHub</a> ·
-    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.1.6
+    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.2.0
   </footer>
 </div>
 
@@ -80,7 +80,7 @@
     <div class="hud-left">
       <button type="button" class="hbtn only-small" id="drawer-toggle" aria-expanded="false" aria-controls="wing">SYSTEMS</button>
       <span class="badge">CAPTAIN TIER: ROOKIE</span>
-      <span class="badge"><span class="dot" aria-hidden="true"></span> LOCAL DEMO</span>
+      <span class="badge"><span class="dot" aria-hidden="true"></span> <span id="link-text">LOCAL DEMO</span></span>
     </div>
     <div class="hud-mid">
       <img src="assets/marsai-emblem-color.svg" alt="" width="28" height="28">
@@ -112,10 +112,10 @@
     <section class="card" aria-labelledby="h-nodes">
       <h3 id="h-nodes">SUBSYSTEM NODES</h3>
       <ul class="nodes mono small">
-        <li><span>Local demo</span><b>ONLINE</b></li>
-        <li><span>Voice</span><b>UNAVAILABLE</b></li>
+        <li><span>Local demo</span><b id="node-core">ONLINE</b></li>
+        <li><span>Voice</span><b id="node-voice">UNAVAILABLE</b></li>
         <li><span>Storage</span><b>PREVIEW</b></li>
-        <li><span>Network</span><b>NOT USED</b></li>
+        <li><span>ShipCore link</span><b id="node-net">OFFLINE</b></li>
       </ul>
     </section>
     <nav class="card" aria-labelledby="h-nav">
@@ -146,16 +146,18 @@
 
   <footer class="console">
     <form id="console-form" autocomplete="off">
-      <label for="cmd" class="mono small">COMMAND <span class="badge">LOCAL DEMO</span></label>
+      <label for="cmd" class="mono small">COMMAND <span class="badge" id="link-text2">LOCAL DEMO</span></label>
       <div class="row">
         <input id="cmd" class="mono" type="text" placeholder="Type help" enterkeyhint="send" autocapitalize="off" spellcheck="false">
+        <button type="button" class="hbtn" id="mic" aria-pressed="false" hidden title="Uses your browser's speech recognition. Some browsers send audio to their speech provider.">MIC</button>
         <button type="submit" class="hbtn primary">SEND</button>
         <button type="button" class="hbtn" id="clear">CLEAR</button>
       </div>
     </form>
     <div class="console-meta mono small">
       <span>ACTIVE CREW: <b id="crew">MARS</b></span>
-      <span>VOICE: UNAVAILABLE</span>
+      <span>VOICE: <b id="voice-state">UNAVAILABLE</b></span>
+      <button type="button" class="hbtn mini" id="speak-toggle" aria-pressed="false" hidden>SPEAK REPLIES: OFF</button>
       <span class="kbd-hint">Esc: power off</span>
     </div>
     <details class="log">

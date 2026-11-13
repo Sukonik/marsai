@@ -4,7 +4,7 @@
 
 # 🪐 MARSAI
 
-[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.1.6**
+[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.2.0**
 
 ## ONE GALAXY. INFINITE STORIES.
 
@@ -350,6 +350,7 @@ Development handoffs:
 - [Site V1 development handoff for Cole](docs/COLE_SITE_V1_HANDOFF.md)
 - [Logo and wordmark handoff](docs/LOGO_HANDOFF.md)
 - [Typography system](docs/TYPOGRAPHY.md)
+- [ShipCore local service (V1.1)](docs/SHIPCORE.md)
 - [HUD references and ranking](docs/hud_references.md)
 - [Typography system](docs/TYPOGRAPHY.md)
 
@@ -357,6 +358,7 @@ Development handoffs:
 
 Each merged pull request is a version, logged in [issue #4](https://github.com/Sukonik/marsai/issues/4) and [CHANGELOG.md](CHANGELOG.md).
 
+- [v0.2.0](https://github.com/Sukonik/marsai/pull/12): ShipCore local service and browser voice (V1.1 track)
 - [v0.1.6](https://github.com/Sukonik/marsai/pull/11): power on HUD from the home screen, full-screen mode
 - [v0.1.5](https://github.com/Sukonik/marsai/pull/10): self-hosted fonts and HUD references
 - [v0.1.4](https://github.com/Sukonik/marsai/pull/9): Orbitron and Quantico typography
