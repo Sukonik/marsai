@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/brand/marsai-mark-512.png" alt="MARSAI logo: a red planet with a gold orbital ring inside a shield" width="160">
+</p>
+
 # 🪐 MARSAI
 
 ## ONE GALAXY. INFINITE STORIES.
