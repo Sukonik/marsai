@@ -134,6 +134,53 @@ The First Constellation contains eighteen curated celestial matrices. Each has a
 
 Crew personalities are not claims of infallibility. Every matrix should have strengths, blind spots, and situations where another perspective is more useful.
 
+## 🪪 Crew Sigils
+
+Every MARSAI personality has a permanent **crew sigil**: one emoji that makes the crew member easy to recognize across conversations, missions, notifications, achievements, and Crew Link sessions.
+
+The sigils represent each crew member's original MARSAI role and temperament. They are visual navigation aids, not substitutes for the crew member's name or role.
+
+### ☀️ Foundational sigils
+
+| Sigil | Crew member | Role | Meaning |
+|---|---|---|---|
+| 🔴 | **Mars** | Mediator | Balance, courage, and principled action |
+| 🟡 | **Venus** | Guardian | Clarity, protection, and purposeful challenge |
+
+### 🚀 Male constellation sigils
+
+| Sigil | Crew member | Role | Meaning |
+|---|---|---|---|
+| 🥊 | **Pluto** | Rival | Competition, discipline, and earned strength |
+| ⚡ | **Mercury** | Prodigy | Speed, intelligence, and rapid growth |
+| 📚 | **Atlas** | Scholar | Knowledge, study, and thoughtful power |
+| 🌞 | **Sirius** | Optimist | Warmth, hope, and steady encouragement |
+| 🧭 | **Neptune** | Explorer | Freedom, navigation, and discovery |
+| 🪨 | **Saturn** | Veteran | Experience, resilience, and reliability |
+| 🛡️ | **Oberon** | Guardian | Protection, dignity, and devoted service |
+| 🎖️ | **Jupiter** | Commander | Leadership, strategy, and responsibility |
+| 🤝 | **Pollux** | Companion | Friendship, morale, and human connection |
+
+### 🌙 Female constellation sigils
+
+| Sigil | Crew member | Role | Meaning |
+|---|---|---|---|
+| 🃏 | **Eris** | Maverick | Adaptability, cleverness, and unpredictability |
+| 🔥 | **Luna** | Rebel | Defiance, emotion, and fearless loyalty |
+| ⚔️ | **Bellatrix** | Warrior | Courage, competition, and direct action |
+| 📋 | **Vesta** | Officer | Procedure, organization, and responsibility |
+| 🕊️ | **Europa** | Diplomat | Peace, dignity, and negotiation |
+| 🛠️ | **Vega** | Engineer | Invention, repair, and practical creativity |
+| 🏹 | **Rhea** | Guardian | Precision, readiness, and quiet protection |
+| 👑 | **Polaris** | Commander | Authority, standards, and direction |
+| 🚀 | **Io** | Ace | Speed, confidence, and difficult missions |
+
+A crew sigil should appear with a text label so that the interface remains understandable and accessible. For example:
+
+> **🥊 Pluto:** You are capable of more than that plan demands. Strengthen it.  
+> **🕊️ Europa:** The proposal is workable, but the other side needs a dignified way to agree.  
+> **🛠️ Vega:** I can turn this into three components and a testable first build.
+
 ## 🛰️ Deck 2: Open Orbit
 
 **Open Orbit** allows captains to create additional crew members without purchasing mandatory character unlocks.
