@@ -115,11 +115,18 @@ Avoid excessive detail, gradients that disappear at small sizes, and faux-metal 
 
 ### Typography
 
-Recommended open-source stack:
+The approved typography system is defined in [TYPOGRAPHY.md](TYPOGRAPHY.md).
 
-- **Oxanium:** display labels and major HUD headings
-- **Space Grotesk:** readable interface and narrative text
-- **JetBrains Mono:** telemetry, IDs, times, status labels, and command output
+- **Orbitron:** primary MARSAI display family, live wordmark basis, hero headings, navigation, theme names, major controls, and large status readouts
+- **Quantico:** large panel titles and large system prompts only, with an intended minimum size of 18 CSS pixels
+- **JetBrains Mono:** telemetry, IDs, times, logs, coordinates, and command output
+- **System sans-serif:** paragraphs, descriptions, settings, forms, and small interface text
+
+The visual wordmark is written **MARS AI** in large Orbitron. The product name remains **MARSAI** in metadata, URLs, filenames, and ordinary prose.
+
+Do not use Quantico for body copy, small labels, buttons, timestamps, telemetry, or mobile microcopy. Do not use Orbitron for long paragraphs.
+
+The previously supplied rounded path wordmark and its combined lockups are deprecated. The shield-and-orbit emblem remains approved. Until replacement wordmark assets are delivered, use the emblem with live Orbitron text.
 
 Provide system-font fallbacks and ensure that the site remains usable if web fonts fail.
 
