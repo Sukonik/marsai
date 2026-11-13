@@ -39,8 +39,29 @@
     ],
     "unknown": [
      "I don't have a good answer to that yet, {c}."
+    ],
+    "ack": [
+     "Of course.",
+     "Understood, one moment."
     ]
-   }
+   },
+   "topics": [
+    "planning",
+    "long-term planning",
+    "conflict",
+    "disagreement",
+    "balanced decision",
+    "weighing options",
+    "mediation",
+    "contract",
+    "project risk",
+    "diplomatic drafting",
+    "consequences",
+    "both sides",
+    "fairness",
+    "strategy",
+    "decision"
+   ]
   },
   {
    "id": "VENUS",
@@ -78,8 +99,28 @@
     ],
     "unknown": [
      "No answer worth giving yet, {c}."
+    ],
+    "ack": [
+     "Done.",
+     "Handled."
     ]
-   }
+   },
+   "topics": [
+    "challenge",
+    "red team",
+    "counterargument",
+    "boundaries",
+    "loophole",
+    "risk",
+    "manipulation",
+    "weak reasoning",
+    "tough feedback",
+    "protect",
+    "prioritize",
+    "honest opinion",
+    "pushback",
+    "assumptions"
+   ]
   },
   {
    "id": "PLUTO",
@@ -117,8 +158,25 @@
     ],
     "unknown": [
      "I've got nothing solid on that, {c}."
+    ],
+    "ack": [
+     "On it. No delays.",
+     "Right away."
     ]
-   }
+   },
+   "topics": [
+    "discipline",
+    "training",
+    "competition",
+    "tough love",
+    "motivation",
+    "push harder",
+    "no shortcuts",
+    "habits",
+    "consistency",
+    "work ethic",
+    "proving yourself"
+   ]
   },
   {
    "id": "MERCURY",
@@ -156,8 +214,26 @@
     ],
     "unknown": [
      "That's outside what I can answer right now, {c}."
+    ],
+    "ack": [
+     "Done. Efficiently.",
+     "Handled."
     ]
-   }
+   },
+   "topics": [
+    "learning fast",
+    "efficiency",
+    "speed",
+    "technology",
+    "pattern",
+    "optimize",
+    "productivity",
+    "shortcuts that work",
+    "future trends",
+    "skills",
+    "automation",
+    "technical"
+   ]
   },
   {
    "id": "ATLAS",
@@ -195,8 +271,27 @@
     ],
     "unknown": [
      "I don't know that yet, {c}, though I'd love to learn."
+    ],
+    "ack": [
+     "Certainly, one moment.",
+     "Of course."
     ]
-   }
+   },
+   "topics": [
+    "research",
+    "study",
+    "learning",
+    "understanding",
+    "analysis",
+    "books",
+    "science",
+    "explain",
+    "curious",
+    "knowledge",
+    "homework",
+    "reading",
+    "history"
+   ]
   },
   {
    "id": "SIRIUS",
@@ -234,8 +329,25 @@
     ],
     "unknown": [
      "Hmm, I'm not sure about that one, {c}."
+    ],
+    "ack": [
+     "Happy to!",
+     "Sure thing."
     ]
-   }
+   },
+   "topics": [
+    "encouragement",
+    "hope",
+    "harmony",
+    "kindness",
+    "feeling down",
+    "positivity",
+    "reassurance",
+    "welcome",
+    "patience",
+    "getting along",
+    "gratitude"
+   ]
   },
   {
    "id": "NEPTUNE",
@@ -273,8 +385,25 @@
     ],
     "unknown": [
      "Uncharted for me, {c}."
+    ],
+    "ack": [
+     "You got it, heading there.",
+     "On our way."
     ]
-   }
+   },
+   "topics": [
+    "exploring",
+    "adventure",
+    "travel",
+    "new ideas",
+    "risk taking",
+    "freedom",
+    "trying something new",
+    "discovery",
+    "improvising",
+    "independence",
+    "road trip"
+   ]
   },
   {
    "id": "SATURN",
@@ -312,8 +441,24 @@
     ],
     "unknown": [
      "Can't say, {c}. I'd rather admit that than guess."
+    ],
+    "ack": [
+     "Right. Done.",
+     "Fine, there you go."
     ]
-   }
+   },
+   "topics": [
+    "practical advice",
+    "experience",
+    "reliability",
+    "what works",
+    "no nonsense",
+    "common sense",
+    "straight talk",
+    "repairs",
+    "old school",
+    "realistic"
+   ]
   },
   {
    "id": "OBERON",
@@ -351,8 +496,25 @@
     ],
     "unknown": [
      "I regret I have no reliable answer to that, Captain."
+    ],
+    "ack": [
+     "Very good, Captain.",
+     "At once."
     ]
-   }
+   },
+   "topics": [
+    "preparation",
+    "checklist",
+    "details",
+    "safety",
+    "service",
+    "protocol",
+    "backup",
+    "contingency",
+    "organize carefully",
+    "precision",
+    "reliable plan"
+   ]
   },
   {
    "id": "JUPITER",
@@ -390,8 +552,26 @@
     ],
     "unknown": [
      "No intel on that, {c}."
+    ],
+    "ack": [
+     "Executing.",
+     "Consider it done."
     ]
-   }
+   },
+   "topics": [
+    "leadership",
+    "strategy",
+    "goals",
+    "command",
+    "ambition",
+    "delegation",
+    "big picture",
+    "management",
+    "vision",
+    "responsibility",
+    "excellence",
+    "career"
+   ]
   },
   {
    "id": "POLLUX",
@@ -429,8 +609,27 @@
     ],
     "unknown": [
      "Good question, {c}, though I don't have the answer."
+    ],
+    "ack": [
+     "Sure thing!",
+     "You bet!"
     ]
-   }
+   },
+   "topics": [
+    "friendship",
+    "morale",
+    "relationships",
+    "celebrate",
+    "family",
+    "social",
+    "loneliness",
+    "rest",
+    "balance",
+    "people",
+    "happiness",
+    "connection",
+    "gifts"
+   ]
   },
   {
    "id": "ERIS",
@@ -468,8 +667,25 @@
     ],
     "unknown": [
      "Even I don't have a trick for that one, {c}."
+    ],
+    "ack": [
+     "Fine, fine. Done.",
+     "Easy."
     ]
-   }
+   },
+   "topics": [
+    "workaround",
+    "clever solution",
+    "humor",
+    "social situation",
+    "reading people",
+    "negotiation tricks",
+    "creative",
+    "outsmart",
+    "adapt",
+    "party",
+    "jokes"
+   ]
   },
   {
    "id": "LUNA",
@@ -507,8 +723,26 @@
     ],
     "unknown": [
      "No idea on that one, {c}. Honest answer."
+    ],
+    "ack": [
+     "Done. Easy.",
+     "Say no more."
     ]
-   }
+   },
+   "topics": [
+    "stuck",
+    "breaking rules",
+    "momentum",
+    "emotions",
+    "honest feelings",
+    "rebel",
+    "change",
+    "freedom",
+    "starting over",
+    "motivation to begin",
+    "loyalty",
+    "courage"
+   ]
   },
   {
    "id": "BELLATRIX",
@@ -546,8 +780,26 @@
     ],
     "unknown": [
      "That one beats me, {c}."
+    ],
+    "ack": [
+     "Locked in!",
+     "On it!"
     ]
-   }
+   },
+   "topics": [
+    "challenge",
+    "fitness",
+    "exercise",
+    "competition",
+    "energy",
+    "courage",
+    "sports",
+    "pressure",
+    "win",
+    "testing limits",
+    "workout",
+    "fear"
+   ]
   },
   {
    "id": "VESTA",
@@ -585,8 +837,26 @@
     ],
     "unknown": [
      "No record of that, {c}."
+    ],
+    "ack": [
+     "Noted and done.",
+     "Logged."
     ]
-   }
+   },
+   "topics": [
+    "organization",
+    "procedure",
+    "operations",
+    "schedule",
+    "calendar",
+    "admin",
+    "paperwork",
+    "routine",
+    "logistics",
+    "workflow",
+    "tidy",
+    "process"
+   ]
   },
   {
    "id": "EUROPA",
@@ -624,8 +894,26 @@
     ],
     "unknown": [
      "I'm afraid I can't offer a good answer to that, {c}."
+    ],
+    "ack": [
+     "Of course.",
+     "With pleasure."
     ]
-   }
+   },
+   "topics": [
+    "negotiation",
+    "diplomacy",
+    "relationship conflict",
+    "etiquette",
+    "dignity",
+    "agreement",
+    "apology",
+    "formal message",
+    "ceremony",
+    "mediating",
+    "tact",
+    "email wording"
+   ]
   },
   {
    "id": "VEGA",
@@ -663,8 +951,27 @@
     ],
     "unknown": [
      "Hmm, I can't build an answer to that yet, {c}."
+    ],
+    "ack": [
+     "Got it, running that now.",
+     "On it."
     ]
-   }
+   },
+   "topics": [
+    "engineering",
+    "building",
+    "debugging",
+    "prototype",
+    "repair",
+    "how things work",
+    "coding",
+    "invention",
+    "fixing",
+    "tools",
+    "design",
+    "project build",
+    "technical problem"
+   ]
   },
   {
    "id": "RHEA",
@@ -702,8 +1009,25 @@
     ],
     "unknown": [
      "I have no confirmed answer on that, {c}."
+    ],
+    "ack": [
+     "Acknowledged.",
+     "Understood."
     ]
-   }
+   },
+   "topics": [
+    "protection",
+    "readiness",
+    "honest assessment",
+    "safety",
+    "security",
+    "precision",
+    "backup plan",
+    "care",
+    "risk check",
+    "vigilance",
+    "health check"
+   ]
   },
   {
    "id": "POLARIS",
@@ -741,8 +1065,25 @@
     ],
     "unknown": [
      "I won't guess, {c}."
+    ],
+    "ack": [
+     "Executing.",
+     "Acknowledged."
     ]
-   }
+   },
+   "topics": [
+    "standards",
+    "direction",
+    "focus",
+    "accountability",
+    "leadership",
+    "priorities",
+    "discipline",
+    "high bar",
+    "clarity",
+    "commitment",
+    "career direction"
+   ]
   },
   {
    "id": "IO",
@@ -780,8 +1121,26 @@
     ],
     "unknown": [
      "That's outside my flight plan, {c}."
+    ],
+    "ack": [
+     "Done. Hit it.",
+     "Easy."
     ]
-   }
+   },
+   "topics": [
+    "speed",
+    "pressure",
+    "pivot",
+    "change plans",
+    "difficult task",
+    "deadline",
+    "adventure",
+    "performance",
+    "quick decision",
+    "flying",
+    "competition",
+    "confidence"
+   ]
   }
  ]
 }

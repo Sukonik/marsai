@@ -328,6 +328,17 @@
     openDb().then(loadKeys).then(function () { render(); refresh(); });
   }
   function stop() { if (recording) recording.cancel(); stopAll(); }
-  window.MarsVoice = { init: init, speak: speak, event: event, hasPhrase: hasPhrase, enabled: function () { return prefs.speak; },
+  function setSpeak(on) {
+    prefs.speak = !!on; save();
+    if (speakBtn) { speakBtn.setAttribute('aria-pressed', prefs.speak); speakBtn.textContent = 'SPEAK REPLIES: ' + (prefs.speak ? 'ON' : 'OFF'); }
+    if (!prefs.speak) stopAll();
+    return !!(ttsEngine() || phraseCount() > 0);
+  }
+  function listen() {
+    if (recording) return true;
+    if (!sttEngine()) return false;
+    toggleMic(); return true;
+  }
+  window.MarsVoice = { setSpeak: setSpeak, listen: listen, init: init, speak: speak, event: event, hasPhrase: hasPhrase, enabled: function () { return prefs.speak; },
     stop: stop, refresh: refresh, refreshVoices: function () { fillVoices(); renderPhrases(); speakBtn.hidden = !(ttsEngine() || phraseCount() > 0); } };
 })();

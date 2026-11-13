@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches: [main]
-    paths: ['shipcore/**', 'tests/**', 'pyproject.toml', '.github/workflows/ci.yml']
+    paths: ['shipcore/**', 'tests/**', 'site/assets/**', 'pyproject.toml', '.github/workflows/ci.yml']
 
 permissions:
   contents: read
@@ -22,3 +22,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
       - run: pytest -q
+
+  copilot:
+    name: Plain-language understanding tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node --test tests/js/*.test.js

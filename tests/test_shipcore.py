@@ -239,3 +239,9 @@ def test_crew_voices_really_differ():
     eng = VoiceEngine()
     a, b, c = (eng.synthesize("Systems nominal.", n) for n in ("MARS", "VENUS", "SATURN"))
     assert len({a, b, c}) == 3
+
+
+def test_crew_has_copilot_topics_and_ack_lines():
+    for c in crew_mod.load()["crew"]:
+        assert len(c["topics"]) >= 5, c["id"]
+        assert c["lines"]["ack"], c["id"]
