@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="assets/hud.css">
 <script src="assets/voice.js" defer></script>
 <script src="assets/brain.js" defer></script>
+<script src="assets/copilot.js" defer></script>
 <script src="assets/app.js" defer></script>
 </head>
 <body>
@@ -75,7 +76,7 @@
 
   <footer>
     <a href="https://github.com/Sukonik/marsai">GitHub</a> ·
-    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.4.0
+    <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.5.0
   </footer>
 </div>
 
@@ -160,7 +161,7 @@
     <form id="console-form" autocomplete="off">
       <label for="cmd" class="sr">Message your crew</label>
       <div class="row cut">
-        <input id="cmd" class="mono" type="text" placeholder="Say hello, ask the weather, or type help" enterkeyhint="send" autocapitalize="off" spellcheck="false">
+        <input id="cmd" class="mono" type="text" placeholder="Talk to your crew, e.g. take me to the crew" enterkeyhint="send" autocapitalize="off" spellcheck="false">
         <button type="button" class="ibtn mic" id="mic" aria-pressed="false" hidden title="Talk to the ship. Uses local ShipCore Whisper when running, otherwise your browser speech service.">MIC</button>
         <button type="submit" class="ibtn go">SEND</button>
       </div>

@@ -439,14 +439,124 @@
   webToggle(webOn);
 
   /* ---------- Command handling ---------- */
-  var HELP = 'Talk to me like a crew member: "hello! how are you?", "weather in Paris", "who is Ada Lovelace", "what is 15 times 7". Also: notes, new mission <title>, my missions, complete mission N, joke, time, status. ' +
-    'Switch crew: "talk to Pluto" or open the Crew module. Others: bridge, crew, missions, theme lab, roadmap, enable brain, web off, connect, fullscreen, clear, power off.';
+  var HELP = 'Just talk to me. For example: "take me to the crew", "talk to Pluto", "I need someone to challenge my plan", "remind me to call mom", "what is on my plate", "write this down: milk and eggs", ' +
+    '"do I need an umbrella in Paris?", "who is Ada Lovelace?", "what is 15 percent of 80", "turn on the voice", "go full screen". I will ask if I am unsure.';
+
+  /* ---------- Plain-language actions (MarsCopilot understands, this executes) ---------- */
+  var pendingAct = null;
+  function ack() { return line('ack'); }
+  function plainMissions(ms) {
+    var open = ms.filter(function (x) { return !x.done; }), done = ms.length - open.length;
+    if (!ms.length) return 'You have no missions yet. Say "remind me to ..." and I will log one.';
+    if (!open.length) return 'Every mission is done. ' + done + ' completed. Nicely done, ' + (captain || 'Captain') + '.';
+    var list = open.slice(-8).map(function (x) { return '#' + x.id + ' ' + x.title; }).join(', ');
+    return 'You have ' + open.length + ' open mission' + (open.length === 1 ? '' : 's') + ': ' + list + '.' + (done ? ' ' + done + ' already done.' : '');
+  }
+  function getMissions() {
+    if (!link.online) return Promise.resolve(mem.missions);
+    return timeoutFetch(SHIPCORE + '/missions', {}, 1500).then(function (r) { return r.json(); }).then(function (d) { return d.missions || []; }).catch(function () { return mem.missions; });
+  }
+  function store(cmd, ev) {    // run a mission/note command on ShipCore when linked, else on the onboard core
+    if (link.online) return ask(cmd).then(function (d) { if (d) reply(d.reply, ev); });
+    var ob = onboard(cmd); reply(ob ? ob.text : 'I could not do that.', ob && ob.ev || ev); return Promise.resolve();
+  }
+  function openSettings() { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
+  function setFs(on) { if (!!fsEl() !== !!on) toggleFs(); }
+  function switchTo(id, passText) {
+    var to = crewObj(id);
+    if (to.id === crewId) { reply('You are already talking to ' + to.name + '.'); return; }
+    if (passText) reply(passText + ' Passing you to ' + to.name + '.');
+    setTimeout(function () { setCrew(to.id, true); }, passText ? 450 : 0);
+  }
+  function confirmAction(p) {
+    if (p.type === 'switch') { switchTo(p.crew, ack()); return Promise.resolve(); }
+    if (p.type === 'mission') return store('new mission ' + p.title, 'confirm');
+    if (p.type === 'choose') return Promise.resolve();
+    return Promise.resolve();
+  }
+  function runAction(a, raw) {
+    var c = me(), i;
+    switch (a.intent) {
+      case 'yes':
+        if (pendingAct) { var p = pendingAct; pendingAct = null; return confirmAction(p); }
+        return null;
+      case 'no':
+        if (pendingAct) { pendingAct = null; reply('No problem. Just say the word.'); return Promise.resolve(); }
+        return null;
+      case 'navigate':
+        i = findModule(a.module); setModule(i, true); reply(ack() + ' Opening ' + modules[i][0] + '. ' + modules[i][1].split('. ')[0] + '.'); return Promise.resolve();
+      case 'switch_crew': switchTo(a.crew, ack()); return Promise.resolve();
+      case 'random_crew': {
+        var others = CREW.filter(function (x) { return x.id !== crewId; }); switchTo(others[Math.floor(Math.random() * others.length)].id, ack()); return Promise.resolve();
+      }
+      case 'choose_crew':
+        pendingAct = { type: 'choose', options: a.options };
+        reply('Which ' + a.role + ' do you want: ' + a.options.map(function (id) { return crewObj(id).name; }).join(', ').replace(/, ([^,]*)$/, ' or $1') + '?'); return Promise.resolve();
+      case 'list_crew':
+        reply('The crew: ' + CREW.map(function (x) { return x.sigil + ' ' + x.name + ' (' + x.role + ')'; }).join(', ') + '. Open the Crew module or just say who you want.'); return Promise.resolve();
+      case 'about_crew': {
+        var k = crewObj(a.crew);
+        reply(k.sigil + ' ' + k.name + ' is our ' + k.role + '. In their words: "' + fill(k.lines.intro[0]) + '" Say "talk to ' + k.name + '" to bring them on.'); return Promise.resolve();
+      }
+      case 'address':
+        setCrew(a.crew, false); addMsg('sys', '', 'Now talking to ' + label(crewObj(a.crew)) + '.'); return handle(a.rest);
+      case 'recommend':
+        if (!a.crew) { reply('Tell me a little more about what you need, like planning, a tough decision, learning something, or building something, and I will point you to the right crew member.'); return Promise.resolve(); }
+        var rc = crewObj(a.crew);
+        if (rc.id === crewId) { reply('That is right up my alley. Tell me more.'); return Promise.resolve(); }
+        pendingAct = { type: 'switch', crew: rc.id };
+        reply('For ' + a.topic + ', I would bring in ' + rc.sigil + ' ' + rc.name + ', our ' + rc.role + '.' + (a.others && a.others.length ? ' ' + a.others.map(function (id) { return crewObj(id).name; }).join(' or ') + ' could also help.' : '') + ' Shall I put ' + rc.name + ' on?'); return Promise.resolve();
+      case 'mission_add': return store('new mission ' + a.title, 'confirm');
+      case 'mission_soft':
+        pendingAct = { type: 'mission', title: a.title }; reply('Want me to log that as a mission: "' + a.title + '"?'); return Promise.resolve();
+      case 'mission_list': return link.online ? store('my missions') : (reply(plainMissions(mem.missions)), Promise.resolve());
+      case 'mission_done':
+        if (a.id) return store('complete mission ' + a.id, 'celebrate');
+        return getMissions().then(function (ms) {
+          var open = ms.filter(function (x) { return !x.done; });
+          reply(open.length ? 'I could not find a mission matching that. Your open ones: ' + open.slice(-6).map(function (x) { return '#' + x.id + ' ' + x.title; }).join(', ') + '. Say "complete mission" and the number.' : 'You have no open missions to complete.', 'warning');
+        });
+      case 'note_add':
+        if (!a.text) { reply('What should I write down?'); return Promise.resolve(); }
+        return store('note ' + a.text, 'confirm');
+      case 'note_list': return link.online ? store('notes') : (reply(mem.notes.length ? 'Your notes: ' + mem.notes.slice(-8).map(function (x) { return '#' + x.id + ' ' + x.text; }).join(' | ') : 'No notes yet. Say "write this down" and then what to remember.'), Promise.resolve());
+      case 'about_me':
+        reply((captain ? 'You are Captain ' + captain + '. ' : 'You have not told me your name yet. Say "my name is ...". ') + 'I am holding ' + mem.notes.length + ' note' + (mem.notes.length === 1 ? '' : 's') + ' and ' + mem.missions.filter(function (x) { return !x.done; }).length + ' open mission(s) on this device.'); return Promise.resolve();
+      case 'time': reply(onboard('what time is it').text); return Promise.resolve();
+      case 'date': reply('Today is ' + new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + '.'); return Promise.resolve();
+      case 'math':
+        try { reply('That comes to ' + (Math.round(evalMath(a.expr) * 1e9) / 1e9) + '.'); } catch (e) { return null; } return Promise.resolve();
+      case 'weather': return weather(a.here ? 'weather here' : (a.city ? 'weather in ' + a.city.toLowerCase() : 'weather')).then(function (tx) { reply(tx); });
+      case 'fact': return wiki(a.query).then(function (tx) { reply(tx); });
+      case 'voice': {
+        var ok = window.MarsVoice ? MarsVoice.setSpeak(a.on) : false;
+        reply(a.on ? (ok ? ack() + ' I will speak my replies.' : 'I have no voice on this device, so I will stay in text.') : ack() + ' Going quiet.'); return Promise.resolve();
+      }
+      case 'listen':
+        if (window.MarsVoice && MarsVoice.listen()) addMsg('sys', '', 'Listening...'); else reply('I cannot listen on this device. Typing works fine.'); return Promise.resolve();
+      case 'fullscreen': setFs(a.on); reply(ack() + (a.on ? ' Going full screen.' : ' Leaving full screen.')); return Promise.resolve();
+      case 'clear': convo.textContent = ''; logEl.textContent = ''; return Promise.resolve();
+      case 'brain': if (a.on) { brainOn(true); } else { brainOff(); reply('AI brain is off.'); } return Promise.resolve();
+      case 'web': webToggle(a.on); reply(a.on ? 'Web lookups are on. Weather and Wikipedia requests are logged.' : 'Web lookups are off.'); return Promise.resolve();
+      case 'connect': return checkLink(true);
+      case 'settings': openSettings(); reply(ack() + ' Opening systems.'); return Promise.resolve();
+      case 'power_off': reply(line('bye')); setTimeout(function () { power(false); }, 1100); return Promise.resolve();
+      case 'help': reply(HELP); return Promise.resolve();
+    }
+    return null;
+  }
+
   function handle(raw) {
     var cmd = raw.toLowerCase().replace(/[.!,;]+$/, '').replace(/\s+/g, ' ').trim();
     if (pending === 'city') {
       pending = null;
       if (!/^(never mind|nevermind|cancel|no|skip)$/.test(cmd)) return weather('weather in ' + cmd).then(function (t) { reply(t); });
       reply('No problem.'); return Promise.resolve();
+    }
+    if (pendingAct && pendingAct.type === 'choose') {          // answering "which guardian?"
+      var opt = pendingAct.options.map(crewObj).filter(function (x) { return cmd.indexOf(x.name.toLowerCase()) > -1; })[0];
+      if (opt) { pendingAct = null; switchTo(opt.id, ack()); return Promise.resolve(); }
+      pendingAct = null;
     }
     if (cmd === 'help' || cmd === '?') { reply(HELP); return Promise.resolve(); }
     if (cmd === 'clear') { convo.textContent = ''; logEl.textContent = ''; return Promise.resolve(); }
@@ -464,6 +574,18 @@
     if (/^(?:who(?:'s| is) on the crew|list (?:the )?crew|crew list|show (?:the )?crew|who can i talk to)$/.test(cmd)) {
       reply('The crew: ' + CREW.map(function (c) { return c.sigil + ' ' + c.name + ' (' + c.role + ')'; }).join(', ') + '.'); return Promise.resolve();
     }
+    if (window.MarsCopilot) {
+      var needsMissions = /\b(finish|finished|complete|completed|done|mark|cross|check off|tick|wrapped|nailed|did)\b/.test(cmd);
+      return (needsMissions ? getMissions() : Promise.resolve(mem.missions)).then(function (ms) {
+        var act = MarsCopilot.analyze(raw, { crew: CREW, missions: ms });
+        var out = act ? runAction(act, raw) : null;
+        if (out) return out;
+        return rest(raw, cmd);
+      });
+    }
+    return rest(raw, cmd);
+  }
+  function rest(raw, cmd) {
     var st = smalltalk(cmd); if (st) { reply(st); return Promise.resolve(); }
     var ma = mathIntent(cmd); if (ma !== null) { reply('That comes to ' + ma + '.'); return Promise.resolve(); }
     if (weatherIntent(cmd)) return weather(cmd).then(function (t) { reply(t); });

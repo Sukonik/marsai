@@ -4,7 +4,7 @@
 
 # 🪐 MARSAI
 
-[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.4.0**
+[Main](https://github.com/Sukonik/marsai) · [Website](https://sukonik.github.io/marsai) · [Version history](CHANGELOG.md) · [PR and version log](https://github.com/Sukonik/marsai/issues/4) · **v0.5.0**
 
 ## ONE GALAXY. INFINITE STORIES.
 
@@ -352,6 +352,8 @@ Development handoffs:
 - [Typography system](docs/TYPOGRAPHY.md)
 - [ShipCore local service (V1.1)](docs/SHIPCORE.md)
 - [Voice: speech-to-text and crew voices](docs/VOICE.md)
+- [Copilot: plain-language understanding](docs/COPILOT.md)
+- [HUD art direction (Chronoframe)](docs/HUD_ART_DIRECTION.md)
 - [HUD references and ranking](docs/hud_references.md)
 - [Typography system](docs/TYPOGRAPHY.md)
 
@@ -359,6 +361,7 @@ Development handoffs:
 
 Each merged pull request is a version, logged in [issue #4](https://github.com/Sukonik/marsai/issues/4) and [CHANGELOG.md](CHANGELOG.md).
 
+- [v0.5.0](https://github.com/Sukonik/marsai/pull/16): plain-language copilot
 - [v0.4.0](https://github.com/Sukonik/marsai/pull/15): full crew roster, conversation, per-crew voices, AI brain
 - [v0.3.0](https://github.com/Sukonik/marsai/pull/14): production mode, local voice (speech-to-text and crew voices)
 - [v0.2.1](https://github.com/Sukonik/marsai/pull/13): agent tooling review and web policy
