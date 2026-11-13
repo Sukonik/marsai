@@ -338,7 +338,10 @@ No captain should need a subscription merely to retain their identity, ship, or 
 - Add import, backup, and recovery
 - Evaluate Tauri desktop packaging and optional local-model support
 
-See [docs/BUILD_HANDOFF.md](docs/BUILD_HANDOFF.md) for the implementation handoff and acceptance criteria.
+Development handoffs:
+
+- [Core application build handoff](docs/BUILD_HANDOFF.md)
+- [Site V1 development handoff for Cole](docs/COLE_SITE_V1_HANDOFF.md)
 
 ## 🌠 Creative identity
 
