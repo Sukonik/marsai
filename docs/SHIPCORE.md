@@ -47,6 +47,25 @@ Reviewed for concepts only. No code was copied, and none of these names appear i
 | [J.A.R.V.I.S (BolisettySujith)](https://github.com/BolisettySujith/J.A.R.V.I.S) | MIT | Feature checklist: time, notes, jokes, system status, Wikipedia, schedules | Windows-only, hardcoded Gmail credentials, news and geocoding keys, PyAutoGUI system control |
 | [Jarvis-Desktop-Voice-Assistant (kishanrajput23)](https://github.com/kishanrajput23/Jarvis-Desktop-Voice-Assistant) | MIT | Keyword-to-action table, per-language string tables, listen/parse/act/speak loop (our web version uses the browser Speech APIs) | Voice-triggered restart and shutdown, terminal-only UX |
 | [javis-os (blogminhquy)](https://github.com/blogminhquy/javis-os) | MIT | Swappable "brain" separate from memory and skills; skills as plain markdown files; permission tiers; shared tool hub; memory consolidation with undoable git commits; task queue | Full-host agent rights, `curl \| sh` installs, auto-update, open admin signup, third-party brand names |
+| [page-agent (alibaba)](https://github.com/alibaba/page-agent) | MIT | In-page agent that operates a page's UI from natural language using text DOM processing (no screenshots); drop-in copilot idea; MCP exposure | Hosted demo LLM endpoint; any API key placed in client-side JS is visible to visitors |
+| [GEPA (gepa-ai)](https://github.com/gepa-ai/gepa) | MIT | Optimize prompts by reflecting on execution traces plus Pareto search; small adapter interface | Needs an LLM; no stated local-only mode, so run only dev-time with a local model |
+| [browser-use](https://github.com/browser-use/browser-use) | MIT | Persistent REPL state, typed outputs, `sensitive_data` redaction, domain allow and deny lists, per-run workspace | Cloud stealth and CAPTCHA solving, unauthenticated local debugging port, feedback telemetry, Python 3.11+ weight |
+| [Lightpanda](https://github.com/lightpanda-io/browser) | AGPL-3.0 | Lightweight headless browser for page-to-markdown extraction; `--obey-robots`; replayable sessions | AGPL copyleft (never bundle or modify and serve), telemetry on by default, unsigned nightly binaries |
+| [Obscura (h4ckf0r0day)](https://github.com/h4ckf0r0day/obscura) | Apache-2.0 | Private-network fetch blocking by default (a good safety idea) | Built-in anti-detection and fingerprint randomization (`--stealth`); adopt nothing |
+| [CloakBrowser (CloakHQ)](https://github.com/CloakHQ/CloakBrowser) | wrapper MIT, closed binary | Nothing | Stated purpose is bot-detection evasion, closed unreviewed binary, license key, vendor contact on launch; do not use |
+
+## Web and agent tooling policy
+
+MARSAI may later offer opt-in web errands (read a page, summarize it, fill a form for the captain). Rules, fixed now so they shape the design:
+
+- **Respect the web.** No stealth, fingerprint spoofing, CAPTCHA bypass, or other bot-detection evasion, and no tools whose purpose is evasion. Honor robots.txt and site terms.
+- **Opt-in and visible.** Web skills are off by default, run only after the captain enables them, and show every request in the system log.
+- **Read-only first.** Domain allowlist per skill; no logins, payments, or posting without an explicit per-action confirmation.
+- **Never bundle copyleft or unreviewed binaries.** AGPL tools such as Lightpanda stay optional, user-installed, external processes. No closed or unsigned browser binaries.
+- **Block private networks** by default (borrowed from Obscura) so a web skill cannot reach the captain's LAN or local services.
+- **No keys in the page.** Client-side JavaScript never holds provider keys; a hosted LLM call goes through ShipCore only if the captain adds their own key.
+
+Where each reference fits: page-agent's idea becomes a HUD copilot that operates the HUD itself (our own small code, no dependency); GEPA is a dev-time tool for tuning crew persona and routing prompts against our tests using a local model; browser-use is a concept source for the future web-errand skill; Lightpanda is a candidate external page-to-markdown fetcher. Obscura and CloakBrowser are not used.
 
 ## Next steps for V1.x
 
@@ -55,3 +74,5 @@ Reviewed for concepts only. No code was copied, and none of these names appear i
 3. Offline voice (Vosk, Piper) and an in-browser model so the hosted site works without Python
 4. Wikipedia and web lookups as an explicit, opt-in network skill
 5. Crew personas as data files, not code
+6. HUD copilot: natural-language control of the HUD's own modules (page-agent idea), local model optional
+7. Dev-time prompt tuning with GEPA against a persona test set, using a local model
