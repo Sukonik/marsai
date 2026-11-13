@@ -9,13 +9,14 @@
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/marsai-mark-32.png">
 <link rel="apple-touch-icon" href="assets/marsai-mark-180.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Quantico:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preload" href="assets/fonts/orbitron-var.woff2" as="font" type="font/woff2" crossorigin>
 <meta property="og:title" content="MARSAI">
 <meta property="og:description" content="One galaxy. Infinite stories.">
 <meta property="og:image" content="assets/marsai-mark-512.png">
 <style>
+@font-face{font-family:"Orbitron";src:url(assets/fonts/orbitron-var.woff2) format("woff2");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Quantico";src:url(assets/fonts/quantico-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Quantico";src:url(assets/fonts/quantico-700.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap}
 :root{--bg:#14100f;--panel:#1d1816;--line:#3a2e2a;--text:#e9e1dc;--muted:#a79a93;--accent:#dc5336;--gold:#d6963c;--font-display:"Orbitron",system-ui,sans-serif;--font-panel:"Quantico",system-ui,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -67,7 +68,7 @@ footer{padding:1rem;border-top:1px solid var(--line);color:var(--muted);font-siz
 </main>
 <footer>
   <a href="https://github.com/Sukonik/marsai">GitHub</a> ·
-  <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.1.4
+  <a href="https://github.com/Sukonik/marsai/blob/main/CHANGELOG.md">Version history</a> · v0.1.5
 </footer>
 </body>
 </html>

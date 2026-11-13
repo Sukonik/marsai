@@ -69,7 +69,9 @@ No display family should replace readable body typography.
 
 ## Current implementation
 
-The bridge shell loads Orbitron and Quantico through Google Fonts with system fallbacks.
+The bridge shell self-hosts Orbitron (variable, weights 400 to 900) and Quantico (400 and 700) as WOFF2 files in `site/assets/fonts/`, converted from the official Google Fonts sources (https://github.com/google/fonts). Fonts use `font-display: swap` with system fallbacks, and Orbitron is preloaded. No third-party font requests are made.
+
+The official OFL license files sit beside the fonts and must stay with them.
 
 CSS roles:
 
@@ -77,32 +79,4 @@ CSS roles:
 - **--font-panel:** Quantico
 - Body copy: system sans-serif
 
-If remote fonts fail, the interface must remain fully usable.
-
-## Current wordmark status
-
-The rounded custom path wordmarks and combined lockups currently under **public/brand/** are deprecated. They must not be used as the final MARSAI wordmark.
-
-The shield-and-orbit emblem remains approved.
-
-Until the replacement Orbitron-based wordmark assets are delivered:
-
-- Use the emblem by itself where possible.
-- Use live Orbitron text for **MARS AI** in the website header and hero.
-- Do not rasterize the temporary live-text treatment.
-- Do not update social graphics with the deprecated wordmark.
-
-## Accessibility
-
-- Do not use letter spacing that causes words to fragment visually.
-- Keep display text at accessible contrast.
-- Never use a display family as the only carrier of critical information.
-- Allow browser zoom without clipping.
-- Reduce tracking on narrow mobile screens when needed.
-- Avoid all-caps paragraphs.
-
-## License handling
-
-The repository retains the official OFL 1.1 license text for both approved families under **site/assets/fonts/**.
-
-If font binaries are self-hosted later, keep their copyright notices and licenses with the files. Do not sell the font files by themselves or rename a modified font using a reserved font name without permission.
+If the font files fail, the interface must remain fully usable.
