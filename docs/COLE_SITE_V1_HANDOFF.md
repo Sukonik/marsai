@@ -197,7 +197,7 @@ Contains:
 - Keyboard hint
 - Expandable system log
 
-V1 uses deterministic local responses and navigation actions. The console must clearly show **LOCAL DEMO** until a real provider is added.
+V1 ships a working **onboard core** (time, status, notes, missions, jokes; data stays in the browser) plus an optional local [ShipCore](SHIPCORE.md) service for open conversation and local voice. The console always shows which engine answers: **ONBOARD CORE**, **SHIPCORE**, or **SHIPCORE + LOCAL AI**. Never imply a live AI model when none is connected.
 
 ## ⏻ Power on / power off and full screen
 
@@ -207,7 +207,7 @@ The website keeps its menu with tabs. The **home screen** carries a **POWER ON**
 - The HUD offers a **Full screen** toggle (Fullscreen API) that is hidden where unsupported; powering off exits full screen
 - `#hud` deep-links straight to the powered-on HUD (never auto-enters full screen, which needs a user gesture)
 - Boot animation is a short fade and is removed under reduced motion; no sound by default
-- The current shell in [`site/`](../site/) implements the five zones with a local-demo console; Cole replaces the placeholders module by module
+- The current shell in [`site/`](../site/) implements the five zones with an onboard-core console, optional ShipCore link, and voice ([VOICE.md](VOICE.md)); Cole replaces the placeholders module by module
 
 ## 🗺️ Site modules
 
@@ -285,7 +285,7 @@ Include:
 - One sample side quest
 - Clear message that progress is earned through real action, not spending
 
-Local demo state may persist through localStorage for V1. Do not describe this as the final Captain Profile database.
+Onboard-core state persists through localStorage for V1. Do not describe this as the final Captain Profile database.
 
 ### Route: ShipCore
 

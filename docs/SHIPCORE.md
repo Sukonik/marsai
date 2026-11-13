@@ -1,6 +1,6 @@
 # ShipCore (V1.1 track)
 
-ShipCore is MARSAI's local companion service. It runs on the captain's own machine, needs **no API key**, and the HUD connects to it automatically when it is running. Without it, the HUD stays in **LOCAL DEMO**.
+ShipCore is MARSAI's local companion service. It runs on the captain's own machine, needs **no API key**, and the HUD connects to it automatically when it is running. Without it, the HUD runs on its **onboard core** (time, status, notes, missions, jokes, stored in the browser), so it is fully usable on its own.
 
 ## Run it
 
@@ -9,7 +9,7 @@ pip install -e ".[dev]"
 python -m shipcore
 ```
 
-ShipCore listens on `http://127.0.0.1:8765` only. It refuses non-loopback binds unless `--unsafe-bind` is passed. Then power on the HUD: the status badge changes from **LOCAL DEMO** to **SHIPCORE LOCAL** (or **SHIPCORE + LOCAL AI** when a local model is available). Type `connect` in the HUD console to retry.
+ShipCore listens on `http://127.0.0.1:8765` only. It refuses non-loopback binds unless `--unsafe-bind` is passed. Then power on the HUD: the status badge changes from **ONBOARD CORE** to **SHIPCORE** (or **SHIPCORE + LOCAL AI** when a local model is available). With ShipCore connected, notes and missions live in ShipCore (`~/.marsai`); the onboard core keeps its own browser copy. Type `connect` in the HUD console to retry.
 
 Optional extras: `pip install -e ".[status]"` adds memory usage to the `status` skill.
 
@@ -19,8 +19,8 @@ Optional extras: `pip install -e ".[status]"` adds memory usage to the `status` 
 | --- | --- | --- |
 | 1. Skills | Deterministic, original, local-only skills: `help`, `time`, `status`, `notes`, `new mission`, `my missions`, `complete mission N`, `joke` | Built |
 | 2. Local model | [Ollama](https://ollama.com) on this machine (`MARSAI_OLLAMA_MODEL`, default `llama3.2`) for open conversation | Built, used only if Ollama is running |
-| 3. Browser voice | Web Speech API in the HUD: mic input and spoken replies. No key. Some browsers send audio to their own speech provider, so it is opt-in per click | Built |
-| 4. Offline voice | Vosk or whisper.cpp for speech-to-text, Piper for text-to-speech, fully local | Planned |
+| 3. Local voice | Whisper (faster-whisper) speech-to-text and Piper neural voices, one per crew member, fully offline. See [VOICE.md](VOICE.md) | Built (`pip install -e ".[voice]"`, `python -m shipcore voice-setup`) |
+| 4. Browser voice | Web Speech API fallback when ShipCore voice is not running. No key; some browsers send audio to their own speech provider, so it is opt-in per click | Built |
 | 5. In-browser model | WebLLM or transformers.js so the Pages site can chat with no Python at all | Planned |
 | 6. Bring your own key | Optional hosted providers behind the same `Provider` interface | Later, off by default |
 

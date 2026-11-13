@@ -111,3 +111,79 @@ def test_missions_api(client):
 def test_refuses_non_loopback(capsys):
     from shipcore.__main__ import main
     assert main(["--host", "0.0.0.0"]) == 2
+
+
+# ---------- voice ----------
+from shipcore.voice import VoiceEngine, MAX_AUDIO_BYTES  # noqa: E402
+
+
+class FakeVoice(VoiceEngine):
+    def __init__(self, stt=True, tts=True):
+        self._stt, self._tts = stt, tts
+
+    def stt_available(self):
+        return self._stt
+
+    def tts_available(self):
+        return self._tts
+
+    def status(self):
+        return {"stt": {"available": self._stt}, "tts": {"available": self._tts, "voices": {}}}
+
+    def transcribe(self, audio):
+        return "open crew" if audio else ""
+
+    def synthesize(self, text, crew="MARS"):
+        return b"RIFF" + text.encode()
+
+
+@pytest.fixture
+def vclient(core):
+    return TestClient(create_app(core, FakeVoice()))
+
+
+def test_voice_status(vclient):
+    assert vclient.get("/voice/status").json()["stt"]["available"] is True
+
+
+def test_stt_ok_and_limits(vclient):
+    r = vclient.post("/stt", content=b"abc", headers={"Content-Type": "audio/webm"})
+    assert r.json() == {"text": "open crew"}
+    assert vclient.post("/stt", content=b"").status_code == 400
+    big = b"x" * (MAX_AUDIO_BYTES + 1)
+    assert vclient.post("/stt", content=big).status_code == 413
+
+
+def test_tts_ok_and_validation(vclient):
+    r = vclient.post("/tts", json={"text": "hello", "crew": "venus"})
+    assert r.status_code == 200 and r.headers["content-type"] == "audio/wav"
+    assert vclient.post("/tts", json={"text": ""}).status_code == 422
+    assert vclient.post("/tts", json={"text": "x" * 601}).status_code == 422
+
+
+def test_voice_unavailable_returns_503(core):
+    c = TestClient(create_app(core, FakeVoice(stt=False, tts=False)))
+    assert c.post("/stt", content=b"abc").status_code == 503
+    assert c.post("/tts", json={"text": "hi"}).status_code == 503
+
+
+def test_voice_endpoints_respect_origin_guard(vclient):
+    assert vclient.post("/tts", json={"text": "hi"}, headers={"Origin": "https://evil.example"}).status_code == 403
+
+
+def test_voice_status_without_models(tmp_path):
+    s = VoiceEngine(tmp_path).status()
+    assert s["tts"]["available"] is False and s["tts"]["voices"] == {}
+
+
+@pytest.mark.skipif(not __import__("os").environ.get("MARSAI_VOICE_IT"), reason="needs local models: set MARSAI_VOICE_IT=1")
+def test_voice_round_trip_real_models():
+    eng = VoiceEngine()
+    wav = eng.synthesize("Open the crew module.", "MARS")
+    assert "crew" in eng.transcribe(wav).lower()
+
+
+def test_transcript_punctuation_is_normalized(core):
+    assert "created: learn baking" in core.chat("New mission, learn baking.").text
+    assert "Noted (#" in core.chat("Note, buy filters.").text
+    assert core.chat("Help.").source == "skill:help"

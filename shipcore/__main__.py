@@ -9,10 +9,18 @@ LOOPBACK = {"127.0.0.1", "localhost", "::1"}
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="shipcore", description="MARSAI ShipCore local service")
+    ap.add_argument("command", nargs="?", default="serve", choices=["serve", "voice-setup"],
+                    help="serve (default) or voice-setup (download local voices and speech model)")
+    ap.add_argument("--stt-model", default=None, help="Whisper model for voice-setup (default base.en)")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--unsafe-bind", action="store_true", help="allow non-loopback hosts (not recommended)")
     args = ap.parse_args(argv)
+    if args.command == "voice-setup":
+        from .voice import setup
+
+        setup(stt_model=args.stt_model)
+        return 0
     if args.host not in LOOPBACK and not args.unsafe_bind:
         print("Refusing to bind to a non-loopback address. ShipCore is a local service.", file=sys.stderr)
         return 2
