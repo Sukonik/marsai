@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">MARSAI shield and orbital planet emblem</title>
+  <desc id="desc">A silver shield enclosing a crimson planet crossed by an amber orbital ring.</desc>
+  <path d="M512 76 823 188v286c0 219-119 381-311 474C320 855 201 693 201 474V188L512 76Z" fill="none" stroke="#DCE7F0" stroke-width="44" stroke-linejoin="miter"/>
+  <circle cx="512" cy="482" r="232" fill="#E65A3A"/>
+  <ellipse cx="512" cy="482" rx="352" ry="128" fill="none" stroke="#D99A3D" stroke-width="42" transform="rotate(-28 512 482)"/>
+  <circle cx="762" cy="240" r="13" fill="#42CFE0"/>
+</svg>
